@@ -1,22 +1,3 @@
-/*=========================================================================================
-  File Name: router.js
-  Description: Routes for vue-router. Lazy loading is enabled.
-  Object Strucutre:
-                    path => router path
-                    name => router name
-                    component(lazy loading) => component to load
-                    meta : {
-                      rule => which user can have access (ACL)
-                      breadcrumb => Add breadcrumb to specific page
-                      pageTitle => Display title besides breadcrumb
-                    }
-  ----------------------------------------------------------------------------------------
-  Item Name: Vuesax Admin - VueJS Dashboard Admin Template
-  Author: Pixinvent
-  Author URL: http://www.themeforest.net/user/pixinvent
-==========================================================================================*/
-
-
 import Vue from 'vue'
 import Router from 'vue-router'
 
@@ -31,19 +12,18 @@ const router = new Router({
     routes: [
 
         {
-    // =============================================================================
-    // MAIN LAYOUT ROUTES
-    // =============================================================================
             path: '',
             component: () => import('./layouts/main/Main.vue'),
             children: [
-        // =============================================================================
-        // Theme Routes
-        // =============================================================================
               {
                 path: '/',
                 name: 'home',
                 component: () => import('./views/Home.vue')
+              },
+              {
+                path: '/projects',
+                name: 'projects',
+                component: () => import('./views/Projects.vue')
               },
               {
                 path: '/page2',
@@ -52,16 +32,10 @@ const router = new Router({
               },
             ],
         },
-    // =============================================================================
-    // FULL PAGE LAYOUTS
-    // =============================================================================
         {
             path: '',
             component: () => import('@/layouts/full-page/FullPage.vue'),
             children: [
-        // =============================================================================
-        // PAGES
-        // =============================================================================
               {
                 path: '/pages/login',
                 name: 'page-login',
@@ -83,7 +57,6 @@ const router = new Router({
 })
 
 router.afterEach(() => {
-  // Remove initial loading
   const appLoading = document.getElementById('loading-bg')
     if (appLoading) {
         appLoading.style.display = "none";

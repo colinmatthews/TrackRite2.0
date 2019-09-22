@@ -18,6 +18,7 @@ import 'vuesax/dist/vuesax.css'; // Vuesax
 Vue.use(Vuesax)
 
 
+
 // Theme Configurations
 import '../themeConfig.js'
 
@@ -54,6 +55,8 @@ Vue.use(VueHammer)
 import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 
+import axios from 'axios'
+Vue.prototype.$http = axios;
 
 // Feather font icon
 require('./assets/css/iconfont.css')
