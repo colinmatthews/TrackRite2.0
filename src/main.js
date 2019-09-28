@@ -56,7 +56,7 @@ import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 
 import axios from 'axios'
-Vue.prototype.$http = axios;
+Vue.prototype.$http = axios.create({ baseURL: 'https://trackriteapi.azure-api.net'});
 
 // Feather font icon
 require('./assets/css/iconfont.css')
