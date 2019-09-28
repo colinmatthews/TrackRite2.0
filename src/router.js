@@ -25,11 +25,6 @@ const router = new Router({
                 name: 'projects',
                 component: () => import('./views/Projects.vue')
               },
-              {
-                path: '/page2',
-                name: 'page-2',
-                component: () => import('./views/Page2.vue')
-              },
             ],
         },
         {
@@ -51,7 +46,7 @@ const router = new Router({
         // Redirect to 404 page, if no match found
         {
             path: '*',
-            redirect: '/pages/error-404'
+            redirect: '/'
         }
     ],
 })
