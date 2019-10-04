@@ -34,7 +34,7 @@
 
       <vs-button
         color="primary"
-        @click="panelSwitcher = 0"
+        @click="panelSwitcher = 0; updateTable()"
         type="border"
         ref="first-btn"
         :class="{ 'bg-primary':  panelSwitcher == 0 }"
@@ -74,7 +74,7 @@
         </div>
 
         <transition name="fade">
-          <vs-table ref="table" v-if="table" :data="display">
+          <vs-table maxHeight="55vh" ref="table" id="t123" v-if="table" :data="display">
             <template slot="thead">
               <vs-th>Name</vs-th>
               <vs-th>Due Date</vs-th>
@@ -157,8 +157,8 @@
                 <vs-td :data="data[index].status">
                   <span
                     :class="{ 'text-success': data[index].status == 'Complete',
-                'text-warning': data[index].status == 'In progress'
-                }"
+                  'text-warning': data[index].status == 'In progress'
+                  }"
                   >{{data[index].status}}</span>
                   <template slot="edit">
                     <div id="edit-row">
@@ -215,6 +215,7 @@
               </vs-tr>
             </template>
           </vs-table>
+          
         </transition>
       </div>
 
@@ -223,108 +224,24 @@
         <span id="title">{{ data.project_title }}</span>
         <div id="navigation">
           <vs-breadcrumb id="breadcrumb" ref="breadcrumb">
-            <li
-              v-for="(item,i) in breadcrumb"
-              :key="i"
-              @click="push(item.query)"
+            <li v-for="(item,i) in breadcrumb" :key="i" @click="push(item.query)"
               :class="{ 'active': i == breadcrumb.length-1 }"
-            >
-              {{ item.title }}
-              <span
-                v-if="i != breadcrumb.length - 1"
-                class="vs-breadcrum--separator"
+            > {{ item.title }}<span v-if="i != breadcrumb.length - 1" class="vs-breadcrum--separator"
               >/</span>
             </li>
           </vs-breadcrumb>
         </div>
-        <vs-table ref="table" v-if="table" :data="display">
-          <template slot="thead">
-            <vs-th>Name</vs-th>
-            <vs-th>Due Date</vs-th>
-            <vs-th>Assignee</vs-th>
-            <vs-th>Status</vs-th>
-            <vs-th>Type</vs-th>
-          </template>
+        
+        <ListViewTable
 
-          <template slot-scope="{data}">
-            <vs-tr :key="index" v-for="(tr, index) in data" :data="tr">
-              <vs-td :data="tr.name">{{ tr.name }}</vs-td>
-
-              <vs-td :data="data[index].start_date">{{data[index].start_date }}</vs-td>
-
-              <vs-td :data="data[index].assignees[0].name">
-                <vx-tooltip :text="tr.assignees[0].name" position="left">
-                  <vs-avatar
-                    :text="tr.assignees[0].name"
-                    :src="require('@/assets/images/portrait/small/avatar-s-11.png')"
-                  />
-                </vx-tooltip>
-              </vs-td>
-
-              <vs-td :data="data[index].status">
-                <span
-                  :class="{ 'text-success': data[index].status == 'Complete', 'text-warning': data[index].status == 'In progress'}"
-                >{{data[index].status}}</span>
-              </vs-td>
-
-              <vs-td :data="data[index].type">{{data[index].type}}</vs-td>
-              <!-- EXPAND SLOT -->
-              <template slot="expand">
-                <vs-table :data="data[index].children" id="t1">
-                  <template slot-scope="{data}">
-                    <vs-tr :key="index" v-for="(tr, index) in data" :data="tr">
-                      <vs-td :data="tr.name">{{ tr.name }}</vs-td>
-
-                      <vs-td :data="data[index].start_date">{{data[index].start_date }}</vs-td>
-
-                      <vs-td :data="data[index].assignees[0].name">
-                        <vx-tooltip :text="tr.assignees[0].name" position="left">
-                          <vs-avatar
-                            :text="tr.assignees[0].name"
-                            :src="require('@/assets/images/portrait/small/avatar-s-11.png')"
-                          />
-                        </vx-tooltip>
-                      </vs-td>
-
-                      <vs-td :data="data[index].status">
-                        <span
-                          :class="{ 'text-success': data[index].status == 'Complete', 'text-warning': data[index].status == 'In progress'}"
-                        >{{data[index].status}}</span>
-                      </vs-td>
-
-                      <vs-td :data="data[index].type">{{data[index].type}}</vs-td>
-                    </vs-tr>
-                  </template>
-                </vs-table>
-              </template>
-            </vs-tr>
-          </template>
-        </vs-table>
+        ></ListViewTable>
+      
       </div>
 
       <!-- DASHBOARD -->
       <div id="dashboard" v-else key="3">
         <span id="title">{{ data.project_title }}</span> 
-         <div id="navigation">
-          <vs-breadcrumb id="breadcrumb" ref="breadcrumb">
-            <li
-              v-for="(item,i) in breadcrumb"
-              :key="i"
-              @click="push(item.query)"
-              :class="{ 'active': i == breadcrumb.length-1 }"
-            >
-              {{ item.title }}
-              <span
-                v-if="i != breadcrumb.length - 1"
-                class="vs-breadcrum--separator"
-              >/</span>
-            </li>
-          </vs-breadcrumb>
-        </div>
-            
-        <div id="charts-block">
-          
-        </div>
+        <DashboardView></DashboardView>
       </div>
 
     </transition>
@@ -332,19 +249,24 @@
 </template>
 
 <script>
+import DashboardView from '@/custom/DashboardView.vue';
+import ListViewTable from '@/custom/ListViewTable.vue';
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 
 export default {
   components: {
-    flatPickr
+    flatPickr, ListViewTable, DashboardView
   },
   data: () => ({
+    columnDefs: null,
+    rowData: null,
+    objToAdd: {},
     breadcrumb: [],
     data: [],
     display: [],
     table: true,
-    panelSwitcher: 2,
+    panelSwitcher: 0,
     projectId: 0,
     taskId: 0,
     icons: false,
@@ -359,13 +281,11 @@ export default {
       series: [60,35,15]
     }
   }),
+
   methods: {
-    
     addTask() {
-      let obj = JSON.parse(JSON.stringify(this.display[0]));
-      obj.name = "Name";
-      obj.details = null;
-      this.display.unshift(obj);
+      this.objToAdd.id = (this.display[this.display.length-1].id-0) + 1
+      this.display.unshift(this.objToAdd);
     },
     addProject() {
       this.$router.push("/projects?action=new-project");
@@ -393,6 +313,7 @@ export default {
       this.$router.push(p);
     },
     updateTable() {
+
       this.projectId = this.$route.query.project;
       this.taskId = this.$route.query.task;
 
@@ -420,6 +341,15 @@ export default {
         this.breadcrumb = this.breadcrumb.slice(-4);
         this.breadcrumb[0].title = "..." + this.breadcrumb[0].title;
       }
+      setTimeout(() => {
+        if(this.panelSwitcher != 0) 
+          return;
+        this.$refs['table'].$children.slice(6).forEach(x => {
+          x.$el.cells[0].onclick = x.clicktd;
+          x.clicktr = function() {}
+          x.clicktd = function() {}
+        })
+      },400);
     }
   },
   watch: {
@@ -440,6 +370,9 @@ export default {
   mounted() {
   },
   created() {
+    setTimeout(() => {
+      
+    },1000)
     if (!this.$route.query.project) {
       this.$router.push({ query: { project: "1" } });
       this.projectId = 1;
@@ -447,6 +380,9 @@ export default {
 
     this.$http.get(`/p/${this.$route.query.project}`).then(res => {
       this.data = res.data;
+      this.objToAdd = JSON.parse(JSON.stringify(this.data.children[0]));
+      this.objToAdd.name = 'Enter a name'
+      this.objToAdd.children = null;
       this.updateTable();
     });
   }
@@ -454,15 +390,25 @@ export default {
 </script>
 
 <style scoped>
+
+
+#table-container {
+
+  position: relative;
+  z-index: 0;
+}
+
 .apexcharts-legend {
   display: flex;
   flex-direction: column;
 }
+
 #icon-controls {
   position: fixed;
   right: 20px;
   user-select: none;
   bottom: 20px;
+  z-index: 100;
 }
 
 #add-icon {
@@ -511,6 +457,8 @@ export default {
   display: flex;
 }
 
+
+
 #edit-row > * {
   margin-left: 10px;
 }
@@ -527,5 +475,9 @@ export default {
 #controls > button {
   padding: 4px;
   margin-right: 7px;
+}
+
+#breadcrumb {
+  cursor: pointer;
 }
 </style>

@@ -10,22 +10,33 @@
 
 import Vue from 'vue'
 import App from './App.vue'
-
+import VueCookies from 'vue-cookie'
+Vue.use(VueCookies);
 // Vuesax Component Framework
 import Vuesax from 'vuesax'
 import 'material-icons/iconfont/material-icons.css' //Material Icons
 import 'vuesax/dist/vuesax.css'; // Vuesax
 Vue.use(Vuesax)
 
+//Ag-grid
+import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+import "../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css";
+
+// Vee validate 
+import VeeValidate from 'vee-validate'
+Vue.use(VeeValidate);
+
 // Apex charts
 import VueApexCharts from 'vue-apexcharts'
-Vue.use(VueApexCharts)
+Vue.use(VueApexCharts);
 
 Vue.component('apexchart', VueApexCharts)
 
 // Theme Configurations
 import '../themeConfig.js'
 
+// AgGrid Vuesax Stylex
+import "./assets/scss/vuesax/extraComponents/agGridStyleOverride.scss";
 
 // Globally Registered Components
 import './globalComponents.js'

@@ -31,5 +31,24 @@ export default [
     name: 'Projects',
     slug: 'projects',
     icon: "FileIcon",
-  }
+  },
+  {
+    url: '/marketplace',
+    name: 'Markertplace',
+    slug: 'marketplace',
+    icon: "FileIcon",
+  },
+  {
+    url: '/reports',
+    name: 'Reports',
+    slug: 'reports',
+    icon: "FileIcon",
+  },
+  {
+    url: '/admin',
+    name: 'Admin',
+    slug: 'admin',
+    icon: "FileIcon",
+  },
+
 ]
