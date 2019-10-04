@@ -10,7 +10,6 @@ const router = new Router({
         return { x: 0, y: 0 }
     },
     routes: [
-
         {
             path: '',
             component: () => import('./layouts/main/Main.vue'),
@@ -19,6 +18,21 @@ const router = new Router({
                 path: '/',
                 name: 'home',
                 component: () => import('./views/Home.vue')
+              },
+              {
+                path: '/admin',
+                name: 'admin',
+                component: () => import('./views/Admin.vue')
+              },
+              {
+                path: '/marketplace',
+                name: 'marketplace',
+                component: () => import('./views/Marketplace.vue')
+              },
+              {
+                path: '/reports',
+                name: 'reports',
+                component: () => import('./views/Reports.vue')
               },
               {
                 path: '/projects',
@@ -43,7 +57,6 @@ const router = new Router({
               },
             ]
         },
-        // Redirect to 404 page, if no match found
         {
             path: '*',
             redirect: '/'

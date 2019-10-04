@@ -89,7 +89,7 @@ export default {
     },
     data: () => ({
         clickNotClose: false, // disable close sidebar on outside click
-        reduce: false, // determines if sidebar is reduce - component property
+        reduce: true, // determines if sidebar is reduce - component property
         showCloseButton: false, // show close button in smaller devices
         isMouseEnter: false,
         settings: { // perfectscrollbar settings
@@ -172,7 +172,9 @@ export default {
             this.isMouseEnter = false;
         },
         toggleReduce(val) {
-            this.reduceButton = val;
+            console.log(val);
+            this.$cookie.set('sidebar', val.toString());
+            this.reduceButton = this.$cookie.get('sidebar') == 'true';
             this.setSidebarWidth();
         },
         handleWindowResize(event) {

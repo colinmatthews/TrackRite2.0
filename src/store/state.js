@@ -12,12 +12,12 @@ import themeConfig from '@/../themeConfig.js'
 import colors from '@/../themeConfig.js'
 
 const state = {
-    isSidebarActive: true,
+    isSidebarActive: false,
     breakpoint: null,
-    sidebarWidth: "default",
+    sidebarWidth: "reduced",
     reduceButton: themeConfig.sidebarCollapsed,
     bodyOverlay: false,
-    sidebarItemsMin: false,
+    sidebarItemsMin: true,
     theme: themeConfig.theme || 'light',
     navbarSearchAndPinList: navbarSearchAndPinList,
     AppActiveUser: {

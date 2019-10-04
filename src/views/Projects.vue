@@ -1,23 +1,27 @@
 <template>
   <div id="projects-page">
     <div id="controls" @click="addProject">
-      <i class="material-icons">add</i>
-      <span id="add">Add new project</span>
+      <vx-tooltip text="Add new project" position="left">
+        <i class="material-icons">add</i>
+      </vx-tooltip>
     </div>
 
     <span id="title">Projects</span>
 
     <div id="projects-display">
-      <vs-row id="r2">
-        <vs-col
+      <vs-row id="r2" >
+        <vs-col 
+          id="u1"
           type="flex"
           vs-justify="center"
           vs-align="center"
-          vs-w="4"
-          v-for="project in projects"
+          vs-w="3"
+          v-for="(project,index) in projects"
+          v-on:click.native="popupDetails = projects[index]; popupActive = true"
           :key="project.id"
         >
-          <vs-card fixedHeight>
+          <vs-card 
+          fixedHeight id="card-project">
             <div class="image">
               <img id="image-preview" src="@/assets/images/sample.png" />
             </div>
@@ -36,6 +40,7 @@
         :title="null"
         :subtitle="null"
         finishButtonText="Submit"
+        @on-complete="submitNewProject"
       >
         <tab-content title="Step 1" class="mb-5">
           <vs-row vs-justify="space-around" id="r">
@@ -83,7 +88,17 @@
         </tab-content>
 
         <tab-content title="Step 2" class="mb-5">
-          <h2>Second</h2>
+          <div id="info-form">
+                <h3>Project Title:</h3>
+                <vs-input size="large" v-validate="'required|alpha'" name="project title" v-model="newProjectTitle" class="mt-5 w-full" />
+                <span class="text-danger text-sm" v-show="errors.has('project title')">{{ errors.first('project title') }}</span>
+                <div id="switch">
+                  <h3>Privacy:</h3>
+                  <label v-if="newProjectPrivate">Private (Only me and the people I invite)</label>
+                  <label v-else>Public (Viewable by anyone in my organization)</label>
+                  <vs-switch v-model="newProjectPrivate" />
+                </div>
+          </div>
         </tab-content>
 
         <tab-content title="Step 3" class="mb-5">
@@ -91,18 +106,54 @@
         </tab-content>
       </form-wizard>
     </vs-popup>
+
+
+    <vs-popup title="Error" v-if="errorModal" :active.sync="errorModal">
+      <template lang="html">
+        <h1 style="text-align: center; margin: 30px;">Unable to validate the fields.</h1>
+    </template>
+    </vs-popup>
+
+    <vs-popup title="Success" v-if="successModal" :active.sync="successModal">
+      <template lang="html">
+        <h1 style="text-align: center; margin: 30px;">Project successfully added.</h1>
+    </template>
+    </vs-popup>
+
+    <vs-popup title="Project details" v-if="popupDetails" :active.sync="popupActive">
+      <template lang="html">
+      <vs-tabs>
+        <vs-tab label="Details" icon-pack="feather" icon="icon-home">
+          <h1>{{ popupDetails.name }}</h1>
+        </vs-tab>
+       
+        <vs-tab label="Access" icon-pack="feather" icon="icon-box">
+        </vs-tab>
+       
+        <vs-tab label="History" icon-pack="feather" icon="icon-mail">
+        </vs-tab>
+      </vs-tabs>
+    </template>
+    </vs-popup>
+
   </div>
 </template>
 
 <script>
 import { FormWizard, TabContent } from "vue-form-wizard";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";
-
 export default {
   data: () => ({
+    newProjectTitle: '',
+    errorModal: false,
+    successModal: false,
+    newProjectPrivate: false,
+    popupActive: false,
+    popupDetails: null,
     projects: null,
     modal: false
   }),
+
   created() {
     this.$http.get("/p").then(res => {
       this.projects = res.data.projects;
@@ -113,6 +164,23 @@ export default {
     }
   },
   methods: {
+    test(e) {
+      console.log(e);
+    },
+    submitNewProject() {
+      this.$validator.validateAll().then(result => {
+        if (result) {
+          this.projects.unshift({name: this.newProjectTitle, private: this.newProjectPrivate });
+          this.modal = false;
+          this.successModal = true;
+          this.newProjectPrivate = false;
+          this.newProjectTitle = '';
+        } else {
+          this.modal = false;
+          this.errorModal = true;
+        }
+      })
+    },
     addProject() {
       this.modal = true;
     }
@@ -125,12 +193,31 @@ export default {
 </script>
 
 <style scoped>
+#card-project {
+  z-index: -1;
+}
+
+#switch {
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
+
+#switch > * {
+  margin-top: 20px;
+}
+
+#u1 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 #r {
   text-align: center;
 }
 
 #r2 {
   margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 #title {
@@ -162,9 +249,8 @@ export default {
 
 #controls {
   position: fixed;
-  top: 88%;
-  line-height: 64px;
-  height: 64px;
+  bottom: 20px;
+  right: 20px;
   user-select: none;
 }
 .wizard-header {
@@ -191,8 +277,10 @@ export default {
   user-select: none;
   border-radius: 100%;
   color: white;
-  font-size: 45px;
-  vertical-align: middle;
+  padding: 8px;
+  margin: 4px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .material-icons:hover {
