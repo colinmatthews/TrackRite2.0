@@ -102,7 +102,21 @@
         </tab-content>
 
         <tab-content title="Step 3" class="mb-5">
-          <h3>Third</h3>
+           <div id="info-form">
+                <h3>Project Title:</h3>
+                <vs-input disabled="true" size="large" v-validate="'required|alpha'" name="project title" v-model="newProjectTitle" class="mt-5 w-full" />
+                <span class="text-danger text-sm" v-show="errors.has('project title')">{{ errors.first('project title') }}</span>
+                <div id="switch">
+                  <h3>Privacy:</h3>
+                  <label v-if="newProjectPrivate">Private (Only me and the people I invite)</label>
+                  <label v-else>Public (Viewable by anyone in my organization)</label>
+                  <vs-switch disabled="true" v-model="newProjectPrivate" />
+                </div>
+                <div id="switch">
+                  <h3>Template</h3>
+                  <vs-input size="large" value="None"></vs-input>
+                </div>
+          </div>
         </tab-content>
       </form-wizard>
     </vs-popup>
@@ -198,8 +212,8 @@ export default {
 }
 
 #switch {
-  margin-top: 100px;
-  margin-bottom: 100px;
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 #switch > * {

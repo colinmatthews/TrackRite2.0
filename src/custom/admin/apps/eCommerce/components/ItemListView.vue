@@ -9,15 +9,14 @@
 
 <template>
     <vx-card class="list-view-item mb-base overflow-hidden">
-
         <template slot="no-body">
             <div class="vx-row item-details no-gutter">
 
                 <!-- IMG COL -->
                 <div class="vx-col sm:w-1/4 w-full item-img-container bg-white flex items-center justify-center">
                     <img
-                        :src="item.image"
-                        :alt="item.name"
+                        :src="item.image_url ? item.image_url == 'zzzzz' ? require('@/assets/images/pages/eCommerce/bank.png') : item.image_url : require('@/assets/images/pages/eCommerce/bank.png')"
+                        
                         class="grid-view-img p-4">
                 </div>
 
@@ -25,9 +24,9 @@
                 <div class="vx-col sm:w-1/2">
                     <div class="p-4 pt-6">
                         <slot name="item-meta">
-                            <h6 class="item-name font-semibold mb-1">{{ item.name }}</h6>
-                            <p class="text-sm mb-4 cursor-pointer">By <span class="text-primary font-semibold">{{ item.brand }}</span></p>
-                            <p class="item-description text-sm">{{ item.description }}</p>
+                            <h6 class="item-name font-semibold mb-1">{{ item.name || 'None' }}</h6>
+                            <p class="text-sm mb-4 cursor-pointer">By <span class="text-primary font-semibold">{{ item.by || 'None' }}</span></p>
+                            <p class="item-description text-sm">{{ item.desc || 'None'}}</p>
                         </slot>
                     </div>
                 </div>
@@ -35,19 +34,14 @@
                 <!-- PURCHASE COL -->
                 <div class="vx-col sm:w-1/4 w-full flex items-center">
 
-                    <div class="p-4 flex flex-col w-full border border-solid d-theme-border-grey-light border-r-0 border-t-0 border-b-0">
+                    <div class="p-4 flex flex-col w-full">
 
                         <div class="bg-primary flex self-end text-white py-1 px-2 rounded">
-                            <span class="text-sm mr-2">{{ item.rating }}</span>
+                            <span class="text-sm mr-2">{{ item.rating || 0 }}</span>
                             <feather-icon icon="StarIcon" svgClasses="h-4 w-4" />
                         </div>
 
-                        <div class="my-6">
-                            <h5 class="font-bold text-center">${{ item.price }}</h5>
-                            <span class="text-grey flex items-start justify-center mt-1" v-if="item.free_shipping">
-                                <feather-icon icon="ShoppingCartIcon" svgClasses="w-4 h-4" />
-                                <span class="text-sm ml-2">Free Shipping</span>
-                            </span>
+                        <div class="my-8">
                         </div>
 
                         <!-- SLOT: ACTION BUTTONS -->
@@ -61,7 +55,7 @@
 </template>
 
 <script>
-export default{
+export default {
     props: {
         item: {
             type: Object,

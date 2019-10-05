@@ -344,11 +344,36 @@ export default {
       setTimeout(() => {
         if(this.panelSwitcher != 0) 
           return;
+
+
+        this.$refs['table'].$children.slice(6).forEach(x => {
+          x.$el.ondblclick = x.$el.cells[1].children[0].onclick;
+          for(let i = 1; i < 6; i++)
+          {
+            console.log(x.$el.cells);
+            x.$el.cells[i].children[0].onclick = function() {console.log('1')};
+          }
+        })
+
         this.$refs['table'].$children.slice(6).forEach(x => {
           x.$el.cells[0].onclick = x.clicktd;
           x.clicktr = function() {}
           x.clicktd = function() {}
-        })
+        });
+
+        var filtered = [];
+        var elements = document.querySelectorAll('.vs-icon.notranslate.icon-scale.material-icons.null');
+        for(let i = 0; i < elements.length; i++) {
+          if(elements[i].innerHTML == 'keyboard_arrow_down')
+            filtered.push(elements[i]);
+        };
+
+        for(let i = 0; i < filtered.length; i++) {
+          if(!this.display[i].details) {
+            filtered[i].classList.add('invisible');
+            filtered[i].parentNode.onclick = null;
+          }
+        }
       },400);
     }
   },
@@ -371,8 +396,8 @@ export default {
   },
   created() {
     setTimeout(() => {
-      
-    },1000)
+
+    },250)
     if (!this.$route.query.project) {
       this.$router.push({ query: { project: "1" } });
       this.projectId = 1;
@@ -398,9 +423,17 @@ export default {
   z-index: 0;
 }
 
+.active-desc {
+  border: 1px solid red;
+}
+
 .apexcharts-legend {
   display: flex;
   flex-direction: column;
+}
+
+.invisible {
+  display: none!important;
 }
 
 #icon-controls {

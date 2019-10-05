@@ -24,12 +24,12 @@
                         icon="MenuIcon"
                         @click.stop="toggleFilterSidebar" />
 
-                    <p class="lg:inline-flex hidden font-semibold algolia-filters-label">Filters</p>
+                    <p class="lg:inline-flex hidden font-semibold algolia-filters-label"></p>
 
                     <div class="flex justify-between items-end flex-grow">
                         <!-- Stats -->
                         <ais-stats>
-                            <p slot-scope="{ hitsPerPage, nbPages, nbHits, page, processingTimeMS, query }" class="font-semibold md:block hidden">
+                            <p slot-scope="{ hitsPerPage, nbPages, nbHits, page, processingTimeMS }" class="font-semibold md:block hidden">
                                 {{ nbHits }} results found in {{ processingTimeMS }}ms
                             </p>
                         </ais-stats>
@@ -39,8 +39,6 @@
                             <!-- SORTING -->
                             <ais-sort-by :items="[
                                 { value: 'instant_search', label: 'Featured' },
-                                { value: 'instant_search_price_asc', label: 'Lowest Price' },
-                                { value: 'instant_search_price_desc', label: 'Highest Price' },
                             ]">
                                 <vs-select
                                     :value="currentRefinement"
@@ -78,99 +76,7 @@
                     v-model="isFilterSidebarActive">
 
                     <div class="p-6 filter-container">
-
-                        <!-- MULTI RANGE -->
-                        <h6 class="font-bold mb-3">Multi Range</h6>
-                        <ais-numeric-menu attribute="price" :items="numericItems">
-                            <ul slot-scope="{ items, refine, createURL }">
-                                <li
-                                    v-for="item in items"
-                                    :key="item.value"
-                                    class="flex items-center cursor-pointer py-1"
-                                    @click="refine(item.value)">
-
-                                    <feather-icon icon="CircleIcon" :svgClasses="[{ 'text-primary fill-current': item.isRefined}, 'h-5 w-5']" />
-                                    <span class="ml-2" :class="{'text-primary': item.isRefined}">{{ item.label }}</span>
-                                </li>
-                            </ul>
-                        </ais-numeric-menu>
-
-                        <vs-divider />
-
-                        <!-- PRICE SLIDER -->
-                        <h6 class="font-bold mb-3">Slider</h6>
-                        <ais-range-input attribute="price">
-                            <div slot-scope="{ currentRefinement, range, refine }">
-                                <vs-slider
-                                    class="algolia-price-slider"
-                                    text-fixed="$"
-                                    :min="range.min"
-                                    :max="range.max"
-                                    :value="toValue(currentRefinement, range)"
-                                    @input="refine({min: $event[0], max: $event[1]})" />
-                            </div>
-                        </ais-range-input>
-
-                        <vs-divider />
-
-                        <!-- CATEGORIES -->
-                        <h6 class="font-bold mb-4">Category</h6>
-                        <ais-hierarchical-menu :attributes="algoliaCategories">
-                            <div slot-scope="{
-                              items,
-                              refine,
-                            }">
-                                <ul>
-                                    <li v-for="item in items" :key="item.value" class="flex items-center cursor-pointer py-1" @click="refine(item.value)">
-                                        <feather-icon icon="CircleIcon" :svgClasses="[{ 'text-primary fill-current': item.isRefined}, 'h-5 w-5']" />
-                                        <span class="ml-2" :class="{'text-primary': item.isRefined}">{{ item.label }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </ais-hierarchical-menu>
-
-                        <vs-divider />
-
-                        <!-- Brands -->
-                        <h6 class="font-bold mb-4">Brand</h6>
-                        <ais-refinement-list attribute="brand">
-                            <div slot-scope="{
-                              items,
-                              isFromSearch,
-                              refine,
-                            }">
-                                <ul>
-                                    <li v-if="isFromSearch && !items.length">No results.</li>
-                                    <li v-for="item in items" :key="item.value" class="mb-2 flex items-center justify-between">
-                                        <vs-checkbox v-model="item.isRefined" class="ml-0" @click="refine(item.value)">{{ item.label }}</vs-checkbox>
-                                        <span>{{ item.count }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </ais-refinement-list>
-                        <vs-divider />
-
-                        <!-- Rating -->
-                        <h6 class="font-bold mb-3">Rating</h6>
-                        <ais-rating-menu attribute="rating">
-                            <ul slot-scope="{ items, refine, createURL }">
-                                <li v-for="item in items" :key="item.value" class="mb-2">
-                                    <div @click.prevent="refine(item.value)" class="flex justify-between items-center">
-                                        <div class="flex items-center flex-wrap">
-                                            <feather-icon icon="StarIcon" :svgClasses="[{'text-warning': full, 'text-grey': !full, 'ml-1' : index}, 'cursor-pointer stroke-current h-6 w-6']" v-for="(full, index) in item.stars" :key="index" />
-                                            <span class="ml-2">&amp; up</span>
-                                        </div>
-                                        <span>({{ item.count }})</span>
-                                    </div>
-                                </li>
-                            </ul>
-                        </ais-rating-menu>
-
-                        <vs-divider />
-
-                        <ais-clear-refinements class="flex justify-center">
-                            <vs-button slot-scope="{ canRefine, refine, createURL }" @click.prevent="refine" :disabled="!canRefine">CLEAR ALL FILTERS</vs-button>
-                        </ais-clear-refinements>
+                       <p class="lg:inline-flex hidden font-semibold algolia-filters-label">Suggested pages</p>
                     </div>
                 </vs-sidebar>
 
@@ -210,13 +116,13 @@
                                 <div class="items-grid-view vx-row match-height">
                                     <div class="vx-col lg:w-1/3 sm:w-1/2 w-full" v-for="item in items" :key="item.objectID">
 
-                                        <item-grid-view :item="item">
+                                        <!-- <item-grid-view :item="item">
 
-                                            <!-- SLOT: ACTION BUTTONS -->
+                                          
                                             <template slot="action-buttons">
                                                 <div class="flex flex-wrap">
 
-                                                    <!-- PRIMARY BUTTON: ADD TO WISH LIST -->
+                                     
                                                     <div
                                                         class="item-view-primary-action-btn p-3 flex flex-grow items-center justify-center cursor-pointer"
                                                         @click="toggleItemInWishList(item)">
@@ -225,7 +131,7 @@
                                                         <span class="text-sm font-semibold ml-2">WISHLIST</span>
                                                     </div>
 
-                                                    <!-- SECONDARY BUTTON: ADD-TO/VIEW-IN CART -->
+                                                  
                                                     <div
                                                         class="item-view-secondary-action-btn bg-primary p-3 flex flex-grow items-center justify-center text-white cursor-pointer"
                                                         @click="cartButtonClicked(item)">
@@ -236,7 +142,7 @@
                                                     </div>
                                                 </div>
                                             </template>
-                                        </item-grid-view>
+                                        </item-grid-view> -->
 
                                     </div>
                                 </div>
@@ -244,7 +150,7 @@
 
                             <!-- LIST VIEW -->
                             <template v-else>
-                                <div class="items-list-view" v-for="item in items" :key="item.objectID">
+                                <div class="items-list-view" v-for="item in items" :key="item.id">
 
                                     <item-list-view :item="item">
 
@@ -254,15 +160,12 @@
                                                 class="item-view-primary-action-btn p-3 rounded-lg flex flex-grow items-center justify-center cursor-pointer mb-3"
                                                 @click="toggleItemInWishList(item)">
                                                 <feather-icon icon="HeartIcon" :svgClasses="[{'text-danger fill-current' : isInWishList(item.objectID)}, 'h-4 w-4']" />
-                                                <span class="text-sm font-semibold ml-2">WISHLIST</span>
+                                                <span class="text-sm font-semibold ml-2">Favorite</span>
                                             </div>
                                             <div
                                                 class="item-view-secondary-action-btn bg-primary p-3 rounded-lg flex flex-grow items-center justify-center text-white cursor-pointer"
                                                 @click="cartButtonClicked(item)">
-                                                <feather-icon icon="ShoppingBagIcon" svgClasses="h-4 w-4" />
-
-                                                <span class="text-sm font-semibold ml-2" v-if="isInCart(item.objectID)">VIEW IN CART</span>
-                                                <span class="text-sm font-semibold ml-2" v-else>ADD TO CART</span>
+                                                <span class="text-sm font-semibold ml-2">Donwload now</span>
                                             </div>
                                         </template>
                                     </item-list-view>
@@ -273,7 +176,7 @@
                     </ais-hits>
 
                     <!-- PAGINATION -->
-                    <ais-pagination>
+                    <ais-pagination v-if="currentItemView != 'item-grid-view'">
                         <div slot-scope="{
                                 currentRefinement,
                                 nbPages,
@@ -281,7 +184,6 @@
                                 isFirstPage,
                                 isLastPage,
                                 refine,
-                                createURL
                             }"
                         >
 
@@ -293,9 +195,6 @@
                             @input="(val) => { refine(val - 1) }" />
                         </div>
                     </ais-pagination>
-
-                    <!-- ALGOLIA LOGO -->
-                    <img class="flex mt-4 mx-auto h-8" src="@/assets/images/pages/eCommerce/Algolia-logo.png" alt="algolia-logo">
                 </div>
             </div>
         </ais-instant-search>
@@ -344,24 +243,11 @@ export default {
                 'latency',
                 '6be0576ff61c053d5f9a3225e2a90f76'
             ),
-            // Filter Sidebar
+            
             isFilterSidebarActive: true,
             clickNotClose: true,
             windowWidth: window.innerWidth,
-            currentItemView: 'item-grid-view',
-            numericItems: [
-              { label: 'All' },
-              { label: '<= $10', end: 10 },
-              { label: '$10 - $100', start: 10, end: 100 },
-              { label: '$100 - $500', start: 100, end: 500 },
-              { label: '>= $500', start: 500 },
-            ],
-            algoliaCategories: [
-              'hierarchicalCategories.lvl0',
-              'hierarchicalCategories.lvl1',
-              'hierarchicalCategories.lvl2',
-              'hierarchicalCategories.lvl3',
-            ]
+            currentItemView: 'item-list-view',
         }
     },
     computed: {
@@ -393,7 +279,9 @@ export default {
                 this.isFilterSidebarActive = this.clickNotClose = true
             }
         },
-
+        test(obj) {
+          console.log(obj);
+        },
         // GRID VIEW - ACTIONS
         toggleFilterSidebar() {
             if(this.clickNotClose) return
@@ -423,6 +311,12 @@ export default {
 </script>
 
 <style lang="scss">
+.ais-Hits {
+  height: 400px!important;
+  overflow-y:scroll;
+
+}
+
 #algolia-instant-search-demo {
     .algolia-header {
         .algolia-filters-label {
@@ -445,12 +339,6 @@ export default {
     .algolia-price-slider {
         min-width: unset;
     }
-
-    // .item-list-view {
-    //     .algolia-result-img {
-
-    //     }
-    // }
 
     .item-view-primary-action-btn {
         color: #2c2c2c !important;

@@ -14,10 +14,10 @@ import colors from '@/../themeConfig.js'
 const state = {
     isSidebarActive: false,
     breakpoint: null,
-    sidebarWidth: "reduced",
+    sidebarWidth: "default",
     reduceButton: themeConfig.sidebarCollapsed,
     bodyOverlay: false,
-    sidebarItemsMin: true,
+    sidebarItemsMin: false,
     theme: themeConfig.theme || 'light',
     navbarSearchAndPinList: navbarSearchAndPinList,
     AppActiveUser: {

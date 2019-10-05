@@ -51,7 +51,7 @@ $datetimePickerSpace: 13px;
 
   .flatpickr-months,
   .flatpickr-month {
-    height: 40px !important;
+    height: 44px !important;
   }
 
   .flatpickr-months {
@@ -64,6 +64,8 @@ $datetimePickerSpace: 13px;
     font-size: 1rem !important;
     font-weight: 500 !important;
     height: 27px;
+    margin-left: 22px !important;
+    margin-right: 3px !important;
 
     &:hover {
       background: transparent !important;
@@ -71,7 +73,7 @@ $datetimePickerSpace: 13px;
   }
 
   .flatpickr-current-month {
-    bottom: -5px;
+    bottom: -11px;
     padding-top: 0;
 
     .numInputWrapper {

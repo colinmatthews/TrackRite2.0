@@ -23,6 +23,9 @@ const actions = {
     updateTheme({ commit }, val) {
       commit('UPDATE_THEME', val);
     },
+    updateUserRole({ commit }, val) {
+      commit('UPDATE_USER_ROLE', val);
+    },
     updateWindowWidth({ commit }, width) {
       commit('UPDATE_WINDOW_WIDTH', width);
     },

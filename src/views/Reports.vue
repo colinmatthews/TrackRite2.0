@@ -3,10 +3,10 @@
     <h1 id="title">Reports</h1>
 
     <div id="header-page">
-      <transition name="fade" mode="out-in">
+      <transition-group name="fade" mode="out-in">
         <span key="0" v-if="search.visible">{{ search.title }}</span>
         <span key="1"></span>
-      </transition>
+      </transition-group>
       <i id="search-icon" class="material-icons">search</i>
        <vue-simple-suggest id="suggest"
           placeholder="Search for projects..."
@@ -21,7 +21,12 @@
     </div>
 
     <div id="body-page">
+      <ag-grid-table :pivot="pivot" id="ag-table"></ag-grid-table>
+    </div>
 
+    <div id="footer">
+      <h3>Pivot</h3>
+      <vs-switch style="margin-top: auto;" v-model="pivot"></vs-switch>
     </div>
   </div>
 </template>
@@ -30,10 +35,11 @@
 
 <script>
 import VueSimpleSuggest from 'vue-simple-suggest';
-import { AgGridVue } from 'ag-grid-vue';
+import AgGridTable from '@/custom/admin/ui-elements/ag-grid-table/AgGridTable.vue';
 
 export default {
   data: () => ({
+    pivot: false,
     search: {
       title: null,
       list: null,
@@ -75,7 +81,7 @@ export default {
     },
   },
   components: {
-    VueSimpleSuggest, AgGridVue
+    VueSimpleSuggest, AgGridTable
   }
 }
 </script>
@@ -84,6 +90,16 @@ export default {
 
 <style lang="scss">
 @import "@/assets/scss/vuesax/extraComponents/autocomplete.scss";
+#ag-table {
+  margin-top: 20px;
+}
+
+#footer {
+  display: flex;
+}
+#footer > * {
+  margin: 15px 5px;
+}
 
 #title {
   font-family: "Segoe UI", sans-serif;
