@@ -82,6 +82,7 @@ export default {
     AgGridVue,
     // VuePerfectScrollbar
   },
+  props: ['pivot'],
   data() {
     return {
       searchQuery: '',
@@ -198,6 +199,10 @@ export default {
   },
   mounted() {
     this.gridApi = this.gridOptions.api;
+    this.columnDefs.forEach(x => {
+      x.pivot = this.pivot;
+    });
+    console.log(this.columnDefs);
     // const el = document.querySelector('.ag-body-viewport');
     // console.log(this.$refs.agGridTablePs)
     // this.$refs.agGridTablePs.__init(el)

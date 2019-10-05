@@ -33,9 +33,18 @@
         border-color: rgba(var(--vs-primary),1) !important;
       }
 
-      &.day.selected {
+      &.day.highlighted {
+        background: rgba(var(--vs-primary),.7);
         color: $white;
-        background: rgba(var(--vs-primary),1);
+
+        &:hover {
+          background: rgba(var(--vs-primary), 1);
+        }
+      }
+
+      &.selected {
+        color: $white;
+        background: rgba(var(--vs-primary),1) !important;
 
         &:hover {
           background: rgba(var(--vs-primary),1);

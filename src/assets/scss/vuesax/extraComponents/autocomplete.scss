@@ -36,10 +36,7 @@ pre.selected.hljs {
     .suggest-item{
       padding: .8rem 1rem;
       &.hover, &.selected{
-        transition: 0.2s;
         background-color: rgba(var(--vs-primary),1)!important;
-        color: white;
-        border-radius: 6px;
       }
     }
   }

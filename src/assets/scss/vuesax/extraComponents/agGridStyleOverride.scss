@@ -8,6 +8,14 @@
 ==========================================================================================*/
 $icons-path: "~ag-grid-community/src/styles/ag-theme-material/icons/" !default;
 
+// $ag-icon-checkbox-unchecked: url('../../../images/ag-grid/checkbox-unchecked.svg');
+// $ag-icon-checkbox-checked: url('../../../images/ag-grid/checkbox-checked.svg');
+// $ag-icon-checkbox-indeterminate: url('../../../images/ag-grid/checkbox-indeterminate.svg');
+// $icon-font-family: "feather";
+// $ag-icon-checkbox-unchecked: "\E87A";
+// $ag-icon-checkbox-checked: "\E87A";
+// $ag-icon-checkbox-indeterminate: "\E87A";
+
 $font-family: inherit;
 $font-size: inherit;
 $font-weight: inherit;
@@ -22,6 +30,8 @@ $secondary-font-weight: 600;
 
 .ag-grid-table {
 
+  color: inherit !important;
+
   height: calc(100vh - 30rem);
   @media screen and (max-height: 800px) {
     height: 620px;
@@ -35,6 +45,7 @@ $secondary-font-weight: 600;
     }
   }
 
+  // style select of column header filter
   .ag-filter-select {
     padding: 0.3rem;
     background: transparent;
@@ -58,6 +69,11 @@ $secondary-font-weight: 600;
     input {
       padding-bottom: 0 !important;
     }
+  }
+
+  // Make input border bottom visible
+  .ag-floating-filter-body {
+    height: unset;
   }
 
   .ag-cell-inline-editing {
@@ -88,22 +104,13 @@ $secondary-font-weight: 600;
     overflow-x: auto;
   }
 
-
-  // Change material theme icon to vuesax theme color
-  .ag-icon-checkbox-checked:empty {
-    background-image: url('../../../images/ag-grid/checkbox-checked.svg');
-  }
-
-  .ag-icon-checkbox-checked-readonly {
-    background-image: url('../../../images/ag-grid/checkbox-checked-readonly.svg');
-  }
-
+  .ag-icon-checkbox-checked,
   .ag-icon-checkbox-indeterminate {
-   background-image: url('../../../images/ag-grid/checkbox-indeterminate.svg');
+    color: rgba(var(--vs-primary),1) !important;
   }
 
-  .ag-icon-checkbox-indeterminate-readonly {
-   background-image: url('../../../images/ag-grid/checkbox-indeterminate-readonly.svg');
+  .ag-icon-checkbox-unchecked {
+    color: $content-color;
   }
 
     ::-webkit-scrollbar {
@@ -165,24 +172,24 @@ $secondary-font-weight: 600;
       }
     }
 
-    .ag-icon-filter {
-     background-image: url('../../../images/ag-grid/dark-filter.svg');
-    }
-
-    .ag-icon-filter {
-     background-image: url('../../../images/ag-grid/dark-filter.svg');
-    }
-
-    .ag-icon-checkbox-unchecked {
-     background-image: url('../../../images/ag-grid/dark-checkbox-unchecked.svg');
-    }
-
-    .ag-icon-asc {
-      background-image: url('../../../images/ag-grid/dark-asc.svg');
-    }
-
+    .ag-icon-checkbox-unchecked,
+    .ag-icon-filter,
+    .ag-icon-asc,
     .ag-icon-desc {
-      background-image: url('../../../images/ag-grid/dark-desc.svg');
+      color: $theme-dark-text-color !important;
+    }
+
+    .ag-filter-body-wrapper {
+      background-color: $theme-light-dark-bg;
+    }
+
+    .ag-filter-select {
+      border-color: $theme-dark-border-color;
+      color: $theme-dark-text-color;
+    }
+
+    option {
+      background-color: $theme-dark-bg;
     }
 
     ::-webkit-scrollbar {
