@@ -374,7 +374,7 @@ export default {
             filtered[i].parentNode.onclick = null;
           }
         }
-      },1000);
+      },400);
     }
   },
   watch: {
