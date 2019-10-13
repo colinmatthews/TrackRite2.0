@@ -8,9 +8,6 @@ import 'material-icons/iconfont/material-icons.css' //Material Icons
 import 'vuesax/dist/vuesax.css'; // Vuesax
 Vue.use(Vuesax)
 
-//Ag-grid
-import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
-import "../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css";
 
 // Vee validate 
 import VeeValidate from 'vee-validate'
@@ -43,10 +40,11 @@ import '@/assets/css/main.css';
 // Vue Router
 import router from './router'
 
+let HTTPClient = axios.create({ baseURL: 'https://trackriteapi.azure-api.net'});
 
 // Vuex Store
 import store from './store/store'
-
+store.$http = axios.create({ baseURL: HTTPClient })
 // Vuesax Admin Filters
 import './filters/filters'
 
@@ -59,7 +57,7 @@ import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 
 import axios from 'axios'
-Vue.prototype.$http = axios.create({ baseURL: 'https://trackriteapi.azure-api.net'});
+Vue.prototype.$http = HTTPClient;
 
 // Feather font icon
 require('./assets/css/iconfont.css')
@@ -68,7 +66,7 @@ require('./assets/css/iconfont.css')
 Vue.config.productionTip = false
 
 new Vue({
-    router,
-    store,
-    render: h => h(App)
+  router,
+  store,
+  render: h => h(App)
 }).$mount('#app')

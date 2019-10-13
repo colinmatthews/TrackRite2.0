@@ -21,7 +21,7 @@
     </div>
 
     <div id="body-page">
-      <ag-grid-table :pivot="pivot" id="ag-table"></ag-grid-table>
+      <ag-grid-table  :pivot="pivot" id="ag-table"></ag-grid-table>
     </div>
 
     <div id="footer">

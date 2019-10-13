@@ -181,8 +181,6 @@
 			left: -8px;
 			position: absolute;
 			right: auto;
-			border-width: 1px;
-			border-top: 1px dashed #999;
 			height: 20px;
 			top: 17px;
 			width: 28px;
@@ -192,8 +190,6 @@
 			left: -8px;
 			position: absolute;
 			right: auto;
-			border-width: 1px;
-			border-left: 1px dashed #999;
 			bottom: 50px;
 			height: 100%;
 			top: -8px;
@@ -328,20 +324,18 @@
 		height: 14px;
 		text-align: center;
 		line-height: 13px;
-		border: 1px solid #888;
-		border-radius: 2px;
 		background: #fff;
 		font-style: normal;
 	}
 	.tree-open {
 		line-height: 13px;
 		&:after {
-			content: "\2013";
+			content: "v";
 		}
 	}
 	.tree-close {
 		&:after {
-			content: "+";
+			content: ">";
 		}
 	}
 	.tree-empty {
@@ -362,8 +356,6 @@
 			left: -7px;
 			position: absolute;
 			right: auto;
-			border-width: 1px;
-			border-top: 1px dashed #999;
 			height: 20px;
 			top: 17px;
 			width: 25px;
@@ -609,11 +601,6 @@ circle[data-v-25a85bf2] {
 }
 
 .halo-tree{
-
-  .first-node {
-    padding-left: 0;
-  }
-
   .tree-node-el {
     display: contents;
   }

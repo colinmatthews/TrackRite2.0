@@ -36,6 +36,7 @@
     <vs-popup title="Add a new project" fullscreen :active.sync="modal">
       <form-wizard
         id="FW"
+        ref="form-wiz"
         color="rgba(var(--vs-primary), 1)"
         :title="null"
         :subtitle="null"
@@ -175,6 +176,13 @@ export default {
     });
     if (this.$route.query.action == "new-project") {
       this.addProject();
+      setTimeout(() => {
+        if (this.$route.query.step) {
+          for(let i = 0; i < this.$route.query.step-1; i++) {
+            this.$refs['form-wiz'].nextTab();
+          }
+        }
+      },100)
     }
   },
   methods: {
