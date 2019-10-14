@@ -42,7 +42,7 @@
       >Table</vs-button>
     </div>
 
-    <transition name="fade" mode="out-in" key="1">
+    <transition name="fade" :duration="{ 'enter': 300, 'leave': 300 }" mode="out-in" key="1" v-on:after-leave="testLeave" v-on:before-enter="testLeave">
       
       <!-- TABLE VIEW -->
       <div id="table" v-if="panelSwitcher === 0">
@@ -73,8 +73,8 @@
           </vs-breadcrumb>
         </div>
 
-        <transition name="fade">
-          <vs-table maxHeight="55vh" ref="table" id="t123" v-if="table" :data="display">
+        <transition name="fade" >
+          <vs-table maxHeight="55vh" ref="table" id="t123" v-if="table" v-show="rend" :data="display">
             <template slot="thead">
               <vs-th>Name</vs-th>
               <vs-th>Due Date</vs-th>
@@ -259,6 +259,7 @@ export default {
     flatPickr, ListViewTable, DashboardView
   },
   data: () => ({
+    rend: false,
     columnDefs: null,
     rowData: null,
     objToAdd: {},
@@ -279,13 +280,58 @@ export default {
         }
       },
       series: [60,35,15]
-    }
+    },
   }),
 
   methods: {
     addTask() {
       this.objToAdd.id = (this.display[this.display.length-1].id-0) + 1
       this.display.unshift(this.objToAdd);
+    },
+    testLeave(duration) {
+      this.rend = false;
+      setTimeout(() => {
+        if(this.panelSwitcher != 0) 
+          return;
+
+        console.log('test');
+
+        this.$refs['table'].$children.slice(6).forEach(x => {
+          // x.$el.ondblclick = x.$el.cells[1].children[0].onclick;
+          setTimeout(() => {
+            
+            console.log(x.$el.cells[1].children);
+          },4000);
+
+          for(let i = 1; i < 6; i++)
+          {
+           // x.$el.cells[i].children[0].onclick = function() { console.log('1') };
+          }
+        })
+
+        this.$refs['table'].$children.slice(6).forEach(x => {
+          x.$el.cells[0].onclick = x.clicktd;
+          x.clicktr = function() {}
+          x.clicktd = function() {}
+        });
+
+        var filtered = [];
+        var elements = document.querySelectorAll('.vs-icon.notranslate.icon-scale.material-icons.null');
+        for(let i = 0; i < elements.length; i++) {
+          if(elements[i].innerHTML == 'keyboard_arrow_down')
+            filtered.push(elements[i]);
+        };
+
+        for(let i = 0; i < filtered.length; i++) {
+          if(!this.display[i].details) {
+            filtered[i].classList.add('invisible');
+            filtered[i].parentNode.onclick = null;
+          } else {
+            filtered[i].setAttribute('style', 'color: #7367F0!Important;')
+          }
+        }
+        this.rend = true;
+      }, duration || 1)
     },
     addProject() {
       this.$router.push("/projects?action=new-project");
@@ -304,10 +350,6 @@ export default {
         this.$router.push(
           `/?project=${this.projectId}&task=${tr.id.toString()[0]}`
         );
-    },
-    setFocus(inputName) {
-      console.log(inputName);
-      this.$refs[inputName].$el.querySelector("input").focus();
     },
     push(p) {
       this.$router.push(p);
@@ -341,40 +383,8 @@ export default {
         this.breadcrumb = this.breadcrumb.slice(-4);
         this.breadcrumb[0].title = "..." + this.breadcrumb[0].title;
       }
-      setTimeout(() => {
-        if(this.panelSwitcher != 0) 
-          return;
 
-
-        this.$refs['table'].$children.slice(6).forEach(x => {
-          x.$el.ondblclick = x.$el.cells[1].children[0].onclick;
-          for(let i = 1; i < 6; i++)
-          {
-            console.log(x.$el.cells);
-            x.$el.cells[i].children[0].onclick = function() {console.log('1')};
-          }
-        })
-
-        this.$refs['table'].$children.slice(6).forEach(x => {
-          x.$el.cells[0].onclick = x.clicktd;
-          x.clicktr = function() {}
-          x.clicktd = function() {}
-        });
-
-        var filtered = [];
-        var elements = document.querySelectorAll('.vs-icon.notranslate.icon-scale.material-icons.null');
-        for(let i = 0; i < elements.length; i++) {
-          if(elements[i].innerHTML == 'keyboard_arrow_down')
-            filtered.push(elements[i]);
-        };
-
-        for(let i = 0; i < filtered.length; i++) {
-          if(!this.display[i].details) {
-            filtered[i].classList.add('invisible');
-            filtered[i].parentNode.onclick = null;
-          }
-        }
-      },400);
+      this.testLeave(300);
     }
   },
   watch: {
@@ -393,11 +403,9 @@ export default {
     }
   },
   mounted() {
+    this.testLeave(500);
   },
   created() {
-    setTimeout(() => {
-
-    },250)
     if (!this.$route.query.project) {
       this.$router.push({ query: { project: "1" } });
       this.projectId = 1;
@@ -415,7 +423,6 @@ export default {
 </script>
 
 <style scoped>
-
 
 #table-container {
 

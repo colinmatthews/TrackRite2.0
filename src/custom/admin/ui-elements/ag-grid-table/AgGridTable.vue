@@ -1,28 +1,13 @@
-<!-- =========================================================================================
-    File Name: AgGridTable.vue
-    Description: Ag Grid table
-    ----------------------------------------------------------------------------------------
-    Item Name: Vuesax Admin - VueJS Dashboard Admin Template
-    Author: Pixinvent
-    Author URL: http://www.themeforest.net/user/pixinvent
-========================================================================================== -->
-
-
 <template>
   <div id="ag-grid-demo">
     <vx-card>
-
-      <!-- TABLE ACTION ROW -->
       <div class="flex flex-wrap justify-between items-center">
-
-        <!-- ITEMS PER PAGE -->
         <div class="mb-4 md:mb-0 mr-4 ag-grid-table-actions-left">
           <vs-dropdown vs-trigger-click class="cursor-pointer">
             <div class="p-4 border border-solid d-theme-border-grey-light rounded-full d-theme-dark-bg cursor-pointer flex items-center justify-between font-medium">
               <span class="mr-2">{{ currentPage * paginationPageSize - (paginationPageSize - 1) }} - {{ contacts.length - currentPage * paginationPageSize > 0 ? currentPage * paginationPageSize : contacts.length }} of {{ contacts.length }}</span>
               <feather-icon icon="ChevronDownIcon" svgClasses="h-4 w-4" />
             </div>
-            <!-- <vs-button class="btn-drop" type="line" color="primary" icon-pack="feather" icon="icon-chevron-down"></vs-button> -->
             <vs-dropdown-menu>
 
               <vs-dropdown-item @click="gridApi.paginationSetPageSize(20)">
@@ -73,14 +58,12 @@
 <script>
 import { AgGridVue } from "ag-grid-vue"
 import contacts from './data.json'
-// import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 
 import '@/assets/scss/vuesax/extraComponents/agGridStyleOverride.scss'
 
 export default {
   components: {
     AgGridVue,
-    // VuePerfectScrollbar
   },
   props: ['pivot'],
   data() {
