@@ -40,7 +40,7 @@ import '@/assets/css/main.css';
 // Vue Router
 import router from './router'
 
-let HTTPClient = axios.create({ baseURL: 'https://trackriteapi.azure-api.net'});
+let HTTPClient = axios.create({ baseURL: 'https://trackrite.azure-api.net/trackriteprod/'});
 
 // Vuex Store
 import store from './store/store'

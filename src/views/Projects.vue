@@ -26,7 +26,7 @@
               <img id="image-preview" src="@/assets/images/sample.png" />
             </div>
 
-            <h2 id="card-title">{{ project.name }}</h2>
+            <h2 id="card-title">{{ project.project_title}}</h2>
             <small id="card-description">Lorem ipsum dolor sit amet.</small>
           </vs-card>
         </vs-col>
@@ -171,7 +171,8 @@ export default {
 
   created() {
     this.$http.get("/p").then(res => {
-      this.projects = res.data.projects;
+      console.log(JSON.stringify(res.data))
+      this.projects = res.data;
       this.display = true;
     });
     if (this.$route.query.action == "new-project") {
@@ -190,9 +191,21 @@ export default {
       console.log(e);
     },
     submitNewProject() {
+      
       this.$validator.validateAll().then(result => {
         if (result) {
-          this.projects.unshift({name: this.newProjectTitle, private: this.newProjectPrivate });
+          let id = (Math.floor(Math.random() * Math.floor(100000))).toString()
+          this.$http.post("/p",{id:id,project_title: this.newProjectTitle})
+            .then(function (response) {
+              // handle success
+              console.log(response);
+            })
+            .catch(function (error) {
+              // handle error
+              console.log(error);
+            })
+          
+          this.projects.unshift({project_title: this.newProjectTitle, private: this.newProjectPrivate });
           this.modal = false;
           this.successModal = true;
           this.newProjectPrivate = false;

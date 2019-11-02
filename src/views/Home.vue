@@ -285,9 +285,12 @@ export default {
 
   methods: {
     addTask() {
-      this.objToAdd.id = (this.display[this.display.length-1].id-0) + 1
-      this.display.unshift(this.objToAdd);
+      console.log(this.data);
+      
     },
+    /*
+      Removes the details caret if the task does not have any details
+    */
     testLeave(duration) {
       this.rend = false;
       setTimeout(() => {
@@ -367,9 +370,10 @@ export default {
 
       if (this.taskId) {
         let taskLine = "";
+        console.log(this.taskId)
         this.taskId.split("-").forEach((x, i) => {
           taskLine += x + "-";
-
+          //console.log(this.display[x - 0 - 1])
           this.breadcrumb.push({
             title: this.display[x - 0 - 1].name,
             query: `/?project=${this.projectId}&task=${taskLine}`.slice(0, -1)
@@ -412,8 +416,9 @@ export default {
     }
 
     this.$http.get(`/p/${this.$route.query.project}`).then(res => {
-      this.data = res.data;
-      this.objToAdd = JSON.parse(JSON.stringify(this.data.children[0]));
+      console.log(JSON.stringify(res.data[0].children))
+      this.data = res.data[0];
+      this.objToAdd = JSON.parse(JSON.stringify(this.data.children));
       this.objToAdd.name = 'Enter a name'
       this.objToAdd.children = null;
       this.updateTable();
