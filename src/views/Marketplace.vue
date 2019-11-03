@@ -87,8 +87,9 @@ export default {
     },
     updateData() {
       this.$http.get('/m').then(x => {
-        this.products = x.data.marketplace_options;
-        this.filtered = x.data.marketplace_options;
+        console.log(x.data)
+        this.products = x.data;
+        this.filtered = x.data;
       });
     }
   }, 

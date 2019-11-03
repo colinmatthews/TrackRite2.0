@@ -34,7 +34,7 @@ export default [
   },
   {
     url: '/marketplace',
-    name: 'Markertplace',
+    name: 'Marketplace',
     slug: 'marketplace',
     icon: "FileIcon",
   },
