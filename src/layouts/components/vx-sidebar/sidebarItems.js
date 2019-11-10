@@ -30,13 +30,19 @@ export default [
     url: '/projects',
     name: 'Projects',
     slug: 'projects',
-    icon: "FileIcon",
+    icon: "FolderIcon",
   },
   {
     url: '/marketplace',
     name: 'Marketplace',
     slug: 'marketplace',
-    icon: "FileIcon",
+    icon: "ShoppingBagIcon",
+  },
+  {
+    url: '/checkout',
+    name: 'Checkout',
+    slug: 'checkout',
+    icon: "ShoppingCartIcon",
   },
   {
     url: '/reports',
@@ -45,16 +51,10 @@ export default [
     icon: "FileIcon",
   },
   {
-    url: '/checkout',
-    name: 'Checkout',
-    slug: 'checkout',
-    icon: "FileIcon",
-  },
-  {
     url: '/admin',
     name: 'Admin',
     slug: 'admin',
-    icon: "FileIcon",
+    icon: "UserIcon",
   },
 
 ]

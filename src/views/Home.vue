@@ -549,6 +549,7 @@ export default {
   margin: 4px;
   padding: 10px;
   font-weight: bold;
+  box-shadow: 0rem 0rem 0.5rem 1px darkmagenta;
   background: radial-gradient(
     circle,
     rgba(2, 0, 36, 1) 0%,

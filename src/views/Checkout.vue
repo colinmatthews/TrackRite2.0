@@ -1,14 +1,8 @@
-<!-- =========================================================================================
-	File Name: ECommerceCheckout.vue
-	Description: eCommerce Checkout page
-	----------------------------------------------------------------------------------------
-	Item Name: Vuesax Admin - VueJS Dashboard Admin Template
-	Author: Pixinvent
-	Author URL: http://www.themeforest.net/user/pixinvent
-========================================================================================== -->
-
 <template>
     <div id="ecommerce-checkout-demo">
+
+    <span id="title">Checkout</span>
+
         <form-wizard 
             ref="checkoutWizard"
             color="rgba(var(--vs-primary), 1)"
@@ -61,7 +55,7 @@
                     </div>
 
                     <!-- RIGHT COL -->
-                    <div class="vx-col lg:w-1/3 w-full" v-if="false">
+                    <div class="vx-col lg:w-1/3 w-full">
                         <vx-card>
                             <p class="text-grey mb-3">Options</p>
                             <div class="flex justify-between">
@@ -315,6 +309,13 @@ export default {
 .list-move {
   transition: 600ms;
   transition-property: opacity, transform;
+}
+
+#title {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  color: #707070;
 }
 
 .list-enter {
