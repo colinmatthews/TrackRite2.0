@@ -53,7 +53,7 @@ export default {
             i['title'] = `<div style="display: inline-block">
               <div style="display: flex;">
                 <div style="width: 300px; display: flex; align-items: center;"><span>${i.name}</span></div>
-                <div style="width: 150px; display: flex; align-items: center; text-align: center;"><span>${i.start_date}</span></div>
+                <div style="width: 150px; display: flex; align-items: center; text-align: center;"><span>${i.start_date.split('T')[0]}</span></div>
                 <div style="width: 100px; display: flex; align-items: center; text-align: center;">
                   <div class="con-vs-tooltip">
                       <div class="con-vs-avatar null">
@@ -84,15 +84,16 @@ export default {
       let project = this.$route.query.project || 1;
       this.treeData = [];
       this.$http.get("/p/" + project).then(x => {
-        let f = x.data.children;
+        let f = x.data[0].children;
         this.getData(f, 0);
         this.treeData = f;
       });
-      console.log(this.treeData);
+    
     }
   },
   beforeMount() {
     this.fetchTreeData();
+    
   },
   components: {
     VTree,

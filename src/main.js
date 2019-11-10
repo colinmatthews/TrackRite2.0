@@ -44,7 +44,7 @@ let HTTPClient = axios.create({ baseURL: 'https://trackrite.azure-api.net/trackr
 
 // Vuex Store
 import store from './store/store'
-store.$http = axios.create({ baseURL: HTTPClient })
+store.$http = HTTPClient;
 // Vuesax Admin Filters
 import './filters/filters'
 

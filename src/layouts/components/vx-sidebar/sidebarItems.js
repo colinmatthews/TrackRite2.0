@@ -45,6 +45,12 @@ export default [
     icon: "FileIcon",
   },
   {
+    url: '/checkout',
+    name: 'Checkout',
+    slug: 'checkout',
+    icon: "FileIcon",
+  },
+  {
     url: '/admin',
     name: 'Admin',
     slug: 'admin',

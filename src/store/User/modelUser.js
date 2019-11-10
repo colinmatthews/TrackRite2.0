@@ -12,23 +12,32 @@ const userModule = {
         });
       });
     },
-    addFavoriteProject({ commit, state }, project) {
-      let projects = state.favoriteProjects;
-      projects.push(project);
-      commit('UPDATE_FAVORITE_PROJECTS', projects);
+    removeItemFromCart({ commit, state }, id) {
+      return new Promise((resolve, reject) => {
+        let cartItems = [...state.cartItems];
+        cartItems.splice(cartItems.map(x => x.id).indexOf(id),1);
+        commit('UPDATE_CART', cartItems);
+        resolve(cartItems);
+      })
     },
-    addFavoritePage({ commit, state }, page) {
-      let pages = state.favoritePages;
-      pages.push(page);
-      commit('UPDATE_FAVORITE_PAGES', pages);
+    addItemToCart({ commit, state }, item) {
+      return new Promise((resolve, reject) => {
+        let cartItems = [...state.cartItems];
+        cartItems.unshift(item);
+        commit('UPDATE_CART', cartItems);
+        resolve(cartItems);
+      })
     }
   },
   mutations: {
     UPDATE_FAVORITE_PROJECTS: (state, value) => state.favorites.projects = value,
     UPDATE_FAVORITE_PAGES: (state, value) => state.favorites.pages = value,
+    UPDATE_CART: (state, value) => state.cartItems = value,
   },
   state: {
     name: 'Test user',
+    cartItems: [
+      ],
     favorites: {
       projects: [],
       pages: [],
