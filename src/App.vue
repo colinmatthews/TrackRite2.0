@@ -48,7 +48,26 @@ export default {
 
 <style>
 ::-webkit-scrollbar {
-  width: 15px;
+  width: 10px;
+}
+
+/* Icons fix */
+.vs-table--tbody {
+  position: inherit !important;
+} 
+.img-upload {
+  width: 97%!important;
+  height: 90px!important;
+  margin: 3px 5px!important;
+}
+
+.con-input-upload {
+  width: 97%!important;
+  margin-bottom: 0px!important;
+}
+
+.con-img-upload {
+  padding: 0px 3px!important;
 }
 
 /* Track */
@@ -67,5 +86,33 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
+}
+
+/* Animations go here */
+
+.list-enter-active,
+.list-leave-active,
+.list-move {
+  transition: 600ms;
+  transition-property: opacity, transform;
+}
+
+.list-enter {
+  opacity: 0;
+  transform: scaleY(0.8);
+}
+
+.list-enter-to {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.list-leave-active {
+  display: none;
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: scaleY(0);
 }
 </style>

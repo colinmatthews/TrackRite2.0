@@ -1,13 +1,11 @@
 <template>
   <div class="suggested-page">
     <div class="d-flex">
-			<div class="favorite-image">
-				<img width="28px" height="28px" :src="image || 'https://dsmv6m9so2sgl.cloudfront.net/photos/906026/1532845037025_300.jpg'" />
+			<div class="favorite-image" @click="$router.push('/marketplace/?id=' + $props.id)">
+				<img :src="image || require('@/assets/images/pages/eCommerce/bank.png')" />
 				<span class="text ml-3 mr-3">{{ title }}</span>
 			</div>
-			<div class="favorite-icon" @click="handleClick">
-				<i class="material-icons star" :class="{ 'star-active': isFavorite }">{{ isFavorite ? 'star' : 'star_border'}}</i>
-			</div>
+			
 		</div>
     
   </div>
@@ -15,7 +13,7 @@
 
 <script> 
 export default {
-	props: ['title', 'image'],
+	props: ['title', 'image', 'id'],
 	data: () => ({
 		isFavorite: false,
 	}),
@@ -41,8 +39,22 @@ export default {
 	margin-top: 8px;
 }
 
+.text {
+	transition: .3s;
+}
+
+.text:hover {
+	transition: .3s;
+	color: #7367F0!important;
+}
+
 img {
 	border-radius: 100%;
+	display: block;
+	max-width:32px;
+	max-height: 32px;
+	width: auto;
+	height: auto;
 }
 
 .star {

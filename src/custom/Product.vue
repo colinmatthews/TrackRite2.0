@@ -1,5 +1,5 @@
 <template>
-  <div class="product card mt-6">
+  <li class="product card mt-6">
     <vs-row type="flex" vs-w="12">
       <vs-col vs-w="3" class="p-0 flex items-center justify-center">
         <div class="image">
@@ -7,7 +7,7 @@
             class="grid-view-img p-4 pl-5 select-none"
             width="200px"
             height="200px"
-            :src="image.startsWith('http') ? image : 'https://dsmv6m9so2sgl.cloudfront.net/photos/906026/1532845037025_300.jpg'"
+            :src="image.startsWith('http') ? image : require('@/assets/images/pages/eCommerce/bank.png')"
           />
         </div>
       </vs-col>
@@ -23,34 +23,37 @@
       </vs-col>
       <vs-col vs-w="3" class="p-0">
         <div class="dis">
-          <div class="rating bg-primary select-none flex text-white px-2" @click="toggleFavorite">
-            <span class="text-md mr-1">{{ favorites }}</span>
-            <i class="material-icons text-lg star" :class="{ 'star-active': isFavorite }">{{ isFavorite ? 'star' : 'star_border'}}</i>
-          </div>
+
           <div class="controls p-3 mb-2">
             <div
               ref="downloadButton"
-              @click="toggleFavorite"
+              @click="moreInfo"
               class="bg-secondary p-3 rounded-lg flex flex-grow items-center justify-center cursor-pointer mb-3"
             >
-            <i class="material-icons text-lg" :class="{ 'favorite': isFavorite }">
-            {{ isFavorite ? 'favorite' : 'favorite_border'}}
-            </i>
-              <span class="text-md mx-1 text-black">Favorite</span>
+              <span class="text-md mx-1 text-black">More Information</span>
               
               
             </div>
+            <transition name="fade" mode="out-in" duration="300">
             <div 
-              @click="download"
-              :id="'a'+id"
+              key="0"
+              v-if="!cartItems.map(x => x.id).includes($props.id)"
+              @click="addToCart" 
               class="bg-primary p-3 vs-con-loading__container rounded-lg flex flex-grow items-center justify-center text-white cursor-pointer"
             >
-            Download now</div>
+            Add to Cart</div>
+            <div v-else
+            key="1"
+              @click="removeFromCart"
+              class="bg-danger p-3 vs-con-loading__container rounded-lg flex flex-grow items-center justify-center text-white cursor-pointer"
+            >
+            Remove from Cart</div>
+            </transition>
           </div>
         </div>
       </vs-col>
     </vs-row>
-  </div>
+  </li>
 </template>
 
 <script>
@@ -60,25 +63,21 @@ export default {
     isFavorite: false,
     isDownloading: false,
   }),
+  computed: {
+    cartItems() {
+      return this.$store.state.user.cartItems;
+    },
+  },
   methods: {
-    toggleFavorite() {
-      this.isFavorite = !this.isFavorite;
-      this.$emit('favorite-selected', this.$props.id);
+    addToCart() {
+      this.$emit('add', this.$props.id);
     },
-    download() {
-      if(!this.isDownloading) {
-        this.isDownloading = true;
-        this.$vs.loading({
-          color: 'primary',
-          container: `#a${this.$props.id}`,
-          scale: 0.4,
-        });       
-        setTimeout(() => {
-          this.$router.push('/projects?action=new-project&step=2');
-        }, 3000)
-      }
-
+    removeFromCart() {
+      this.$emit('remove', this.$props.id)
     },
+    moreInfo() {
+      this.$emit('showInfo', this.$props.id);
+    }
   }
 };
 </script>
@@ -93,14 +92,29 @@ export default {
   align-self: flex-end;
   width: 100%;
 }
+img {
 
+	display: block;
+	max-width: 200px;
+	max-height: 200px;
+	width: auto;
+	height: auto;
+}
 .card {
   border-radius: 6px;
   background-color: white;
   box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.05);
 }
+
 .product {
-  transition: 0.5s;
+  transition: .3s;
+  list-style: none;
+}
+
+.product:hover {
+  transition: .3s;
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.3);
 }
 
 .dis {

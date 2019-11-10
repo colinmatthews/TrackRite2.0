@@ -36,10 +36,7 @@
 
                     <div class="p-4 flex flex-col w-full">
 
-                        <div class="bg-primary flex self-end text-white py-1 px-2 rounded">
-                            <span class="text-sm mr-2">{{ item.rating || 0 }}</span>
-                            <feather-icon icon="StarIcon" svgClasses="h-4 w-4" />
-                        </div>
+                     
 
                         <div class="my-8">
                         </div>

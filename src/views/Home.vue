@@ -15,6 +15,15 @@
       </transition>
     </div>
     <div id="controls">
+       <vs-button
+        color="primary"
+        @click="panelSwitcher =3;"
+        type="border"
+        ref="first-btn"
+        :class="{ 'bg-primary':  panelSwitcher == 3 }"
+        icon="account_tree"
+      >Diagram</vs-button>
+
       <vs-button
         color="primary"
         @click="panelSwitcher = 2"
@@ -42,11 +51,28 @@
       >Table</vs-button>
     </div>
 
-    <transition name="fade" :duration="{ 'enter': 300, 'leave': 300 }" mode="out-in" key="1" v-on:after-leave="testLeave" v-on:before-enter="testLeave">
+    <transition name="fade" mode="out-in" key="133" v-on:after-leave="removeDetailsCaret" v-on:before-enter="removeDetailsCaret">
       
       <!-- TABLE VIEW -->
-      <div id="table" v-if="panelSwitcher === 0">
-        <span id="title">{{ data.project_title }}</span>
+      <div id="table" v-if="panelSwitcher === 0" key="0">
+        <div class="title-block">
+            <vs-dropdown :vsDropRight="true">
+              <span id="title" href="#">
+                {{ data.project_title }}
+                <i class="material-icons"> expand_more </i>
+              </span>
+
+              <vs-dropdown-menu>
+
+                <vs-dropdown-item v-for="project in projectList.filter(x => x.project_title != data.project_title)" :key="project.id"
+                @click="$router.replace({ query: {'project': project.id}})">
+                  {{ project.project_title }}
+                </vs-dropdown-item>
+
+              </vs-dropdown-menu>
+            </vs-dropdown>
+   
+        </div>
         <transition name="fade">
           <vs-button
             type="border"
@@ -74,7 +100,7 @@
         </div>
 
         <transition name="fade" >
-          <vs-table maxHeight="55vh" ref="table" id="t123" v-if="table" v-show="rend" :data="display">
+          <vs-table maxHeight="70vh" ref="table" id="t123" v-show="rend" :data="display">
             <template slot="thead">
               <vs-th>Name</vs-th>
               <vs-th>Due Date</vs-th>
@@ -93,7 +119,7 @@
                       <vs-input ref="name" v-model="data[index].name" />
                       <flat-pickr
                         ref="date"
-                        :config="{ dateFormat: 'm/d/Y'}"
+                        :config="datetimePickerConfig"
                         v-model="data[index].start_date"
                       />
                       <vs-input ref="as-name" v-model="data[index].assignees[0].name"></vs-input>
@@ -108,13 +134,13 @@
                 </vs-td>
 
                 <vs-td :data="data[index].start_date">
-                  {{data[index].start_date }}
+                  {{data[index].start_date.split('T')[0]}}
                   <template slot="edit">
                     <div id="edit-row">
                       <vs-input ref="name" v-model="data[index].name" />
                       <flat-pickr
                         ref="date"
-                        :config="{ dateFormat: 'm/d/Y'}"
+                        :config="datetimePickerConfig"
                         v-model="data[index].start_date"
                       />
                       <vs-input ref="as-name" v-model="data[index].assignees[0].name"></vs-input>
@@ -140,7 +166,7 @@
                       <vs-input ref="name" v-model="data[index].name" />
                       <flat-pickr
                         ref="date"
-                        :config="{ dateFormat: 'm/d/Y'}"
+                        :config="datetimePickerConfig"
                         v-model="data[index].start_date"
                       />
                       <vs-input ref="as-name" v-model="data[index].assignees[0].name"></vs-input>
@@ -165,7 +191,7 @@
                       <vs-input ref="name" v-model="data[index].name" />
                       <flat-pickr
                         ref="date"
-                        :config="{ dateFormat: 'm/d/Y'}"
+                        :config="datetimePickerConfig"
                         v-model="data[index].start_date"
                       />
                       <vs-input ref="as-name" v-model="data[index].assignees[0].name"></vs-input>
@@ -186,7 +212,7 @@
                       <vs-input ref="name" v-model="data[index].name" />
                       <flat-pickr
                         ref="date"
-                        :config="{ dateFormat: 'm/d/Y'}"
+                        :config="datetimePickerConfig"
                         v-model="data[index].start_date"
                       />
                       <vs-input ref="as-name" v-model="data[index].assignees[0].name"></vs-input>
@@ -220,7 +246,7 @@
       </div>
 
       <!-- LIST VIEW -->
-      <div id="list" v-else-if="panelSwitcher === 1" key="2">
+      <div id="list" v-else-if="panelSwitcher === 1" key="1">
         <span id="title">{{ data.project_title }}</span>
         <div id="navigation">
           <vs-breadcrumb id="breadcrumb" ref="breadcrumb">
@@ -239,9 +265,26 @@
       </div>
 
       <!-- DASHBOARD -->
-      <div id="dashboard" v-else key="3">
+      <div id="dashboard" v-else-if="panelSwitcher === 2" key="2">
         <span id="title">{{ data.project_title }}</span> 
         <DashboardView></DashboardView>
+      </div>
+
+      <!-- DIAGRAM VIEW -->
+      <div id="tree" v-else-if="panelSwitcher === 3" key="3">
+        <span id="title">Diagram</span>
+        <div class="flex mt-3" style="justify-content: center">
+          <div class="tree-container">
+            <tree :data="getTreeData()" 
+            :duration="400"
+            type="tree"
+            :leafTextMargin="8"
+            :radius="4"
+            :strokeWidth="0.6"
+            node-text="name">
+            </tree>
+          </div>
+        </div>
       </div>
 
     </transition>
@@ -253,12 +296,20 @@ import DashboardView from '@/custom/DashboardView.vue';
 import ListViewTable from '@/custom/ListViewTable.vue';
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
+import {tree} from 'vued3tree'
+
+
 
 export default {
   components: {
-    flatPickr, ListViewTable, DashboardView
+    flatPickr, ListViewTable, DashboardView, tree
   },
   data: () => ({
+    projectList: [],
+    datetimePickerConfig: {
+      enableTime: true,
+      dateFormat: 'Y-m-d'
+    },
     rend: false,
     columnDefs: null,
     rowData: null,
@@ -271,47 +322,65 @@ export default {
     projectId: 0,
     taskId: 0,
     icons: false,
-    pieTest: {
-      options: {
-        colors: ['#7367F0', "#CFC357", "#F2135D"],
-        labels: ['Completed', 'In Progress', 'Not Started'],
-        legend: {
-          position: 'bottom'
-        }
-      },
-      series: [60,35,15]
-    },
   }),
 
   methods: {
     addTask() {
-      console.log(this.data);
-      
+      let newObject = Object.assign({}, this.objToAdd);
+      if(this.display)
+        newObject.id = this.display.length + 1;
+      else 
+        newObject.id = 0;
+      this.updateData(newObject);
+      this.updateTable();
     },
-    /*
-      Removes the details caret if the task does not have any details
-    */
-    testLeave(duration) {
+    updateData(project) {
+      if(this.$route.query.task) {
+        let path = this.$route.query.task.split('-');
+        
+        switch(path.length) {
+          case 1:
+            if(!this.data.children[path[0]-1].children)
+              this.data.children[path[0]-1].children = []
+            this.data.children[path[0]-1].children.unshift(project);
+            break;
+          case 2: 
+            if(! this.data.children[path[0]-1].children[path[1]-1].children)
+               this.data.children[path[0]-1].children[path[1]-1].children = []
+            this.data.children[path[0]-1].children[path[1]-1].children.unshift(project);
+            break;
+          case 3:
+            if(!this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children)
+               this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children = []
+            this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children.unshift(project);
+            break;
+        }
+      }
+      else {
+        this.data.children.unshift(project);
+      }
+
+      // POST REQUEST GOES HERE.
+      this.$http.post('/p', this.data).then(response => {
+      
+      })
+    },
+    getTreeData() {
+      let data = this.data;
+      data['name'] = data.project_title;
+
+      return data;
+    },
+    removeDetailsCaret(duration) {
       this.rend = false;
       setTimeout(() => {
         if(this.panelSwitcher != 0) 
           return;
 
-        console.log('test');
-
-        this.$refs['table'].$children.slice(6).forEach(x => {
-          // x.$el.ondblclick = x.$el.cells[1].children[0].onclick;
-          setTimeout(() => {
-            
-            console.log(x.$el.cells[1].children);
-          },4000);
-
-          for(let i = 1; i < 6; i++)
-          {
-           // x.$el.cells[i].children[0].onclick = function() { console.log('1') };
-          }
-        })
-
+        if(!this.data.children) {
+          this.rend = true;
+          return;
+        }
         this.$refs['table'].$children.slice(6).forEach(x => {
           x.$el.cells[0].onclick = x.clicktd;
           x.clicktr = function() {}
@@ -339,8 +408,21 @@ export default {
     addProject() {
       this.$router.push("/projects?action=new-project");
     },
-    test(data) {
-      console.log(data);
+    fetchProject(id) {
+
+      this.$http.get(`/p/${id}`).then(res => {
+        this.data = res.data[0];
+        if(res.data[0].children) {
+          this.objToAdd = JSON.parse(JSON.stringify(this.data.children[0]));
+          this.objToAdd.name = ''
+          this.objToAdd.start_date = ''
+          this.objToAdd.type = ''
+          this.objToAdd.children = null;
+        }
+
+        this.removeDetailsCaret(0);
+        this.updateTable();
+      });
     },
     handleSelected(tr) {
       if (this.taskId)
@@ -361,8 +443,13 @@ export default {
 
       this.projectId = this.$route.query.project;
       this.taskId = this.$route.query.task;
-
-      this.display = this.data.children;
+      if(!this.data.children) {
+        this.display = []
+        return;
+      }
+      else {
+        this.display = this.data.children;
+      }
 
       this.breadcrumb = [
         { title: "Home", query: `/?project=${this.projectId}` }
@@ -370,16 +457,14 @@ export default {
 
       if (this.taskId) {
         let taskLine = "";
-        console.log(this.taskId)
         this.taskId.split("-").forEach((x, i) => {
           taskLine += x + "-";
-          //console.log(this.display[x - 0 - 1])
           this.breadcrumb.push({
-            title: this.display[x - 0 - 1].name,
+            title: this.display[x - 1].name,
             query: `/?project=${this.projectId}&task=${taskLine}`.slice(0, -1)
           });
 
-          this.display = this.display[x - 0 - 1].children;
+          this.display = this.display[x - 1].children;
         });
       }
 
@@ -388,7 +473,7 @@ export default {
         this.breadcrumb[0].title = "..." + this.breadcrumb[0].title;
       }
 
-      this.testLeave(300);
+      this.removeDetailsCaret(500);
     }
   },
   watch: {
@@ -397,37 +482,38 @@ export default {
       setTimeout(() => (this.table = true), 100);
 
       if (n.query.project != this.projectId) {
-        this.$http.get(`/p/${this.$route.query.project}`).then(res => {
-          this.data = res.data;
-          this.updateTable();
-        });
+        this.fetchProject(this.$route.query.project);
+        this.updateTable();
       } else {
         this.updateTable();
       }
     }
   },
   mounted() {
-    this.testLeave(500);
+    this.removeDetailsCaret(500);
   },
   created() {
     if (!this.$route.query.project) {
       this.$router.push({ query: { project: "1" } });
       this.projectId = 1;
     }
-
-    this.$http.get(`/p/${this.$route.query.project}`).then(res => {
-      console.log(JSON.stringify(res.data[0].children))
-      this.data = res.data[0];
-      this.objToAdd = JSON.parse(JSON.stringify(this.data.children));
-      this.objToAdd.name = 'Enter a name'
-      this.objToAdd.children = null;
-      this.updateTable();
+    
+    this.$http.get('/p').then(res => {
+      this.projectList = res.data;
     });
+    
+    this.fetchProject(this.$route.query.project);
+    
   }
 };
 </script>
 
 <style scoped>
+
+.tree-container {
+  width: 98%;
+  height: 70vh;
+}
 
 #table-container {
 
@@ -463,6 +549,7 @@ export default {
   margin: 4px;
   padding: 10px;
   font-weight: bold;
+  box-shadow: 0rem 0rem 0.5rem 1px darkmagenta;
   background: radial-gradient(
     circle,
     rgba(2, 0, 36, 1) 0%,
@@ -476,7 +563,8 @@ export default {
 }
 #title {
   font-family: "Segoe UI", sans-serif;
-  font-size: 40px;
+  font-size: 30px;
+  margin-left: 10px;
   font-weight: bold;
   color: #707070;
 }
@@ -501,8 +589,6 @@ export default {
 #navigation {
   display: flex;
 }
-
-
 
 #edit-row > * {
   margin-left: 10px;
