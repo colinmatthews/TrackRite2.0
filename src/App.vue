@@ -75,7 +75,13 @@ export default {
   background: gray; 
   border-radius: 10px;
 }
- 
+
+.vs-dropdown--menu {
+  width: 90vw;
+}
+
+.vs-dropdown--menu
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: #f1f1f1;
