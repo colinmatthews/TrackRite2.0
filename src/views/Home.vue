@@ -330,38 +330,31 @@ export default {
       if(this.display)
         newObject.id = this.display.length + 1;
       else 
-        newObject.id = 1;
-
+        newObject.id = 0;
       this.updateData(newObject);
       this.updateTable();
     },
     updateData(project) {
       if(this.$route.query.task) {
         let path = this.$route.query.task.split('-');
-        this.display.unshift(project);
-
+        
         switch(path.length) {
           case 1:
-            this.data
-            .children[this.data.children.map(x => x.id).indexOf(path[0]-0)]
-            .children = this.display; 
+            if(!this.data.children[path[0]-1].children)
+              this.data.children[path[0]-1].children = []
+            this.data.children[path[0]-1].children.unshift(project);
             break;
           case 2: 
-            this.data
-            .children[this.data.children.map(x => x.id).indexOf(path[0]-0)]
-            .children[this.data.children.map(x => x.id).indexOf(path[1]-0)]
-            .children = this.display;
+            if(! this.data.children[path[0]-1].children[path[1]-1].children)
+               this.data.children[path[0]-1].children[path[1]-1].children = []
+            this.data.children[path[0]-1].children[path[1]-1].children.unshift(project);
             break;
-          case 3: 
-            this.data
-            .children[this.data.children.map(x => x.id).indexOf(path[0]-0)]
-            .children[this.data.children.map(x => x.id).indexOf(path[1]-0)]
-            .children[this.data.children.map(x => x.id).indexOf(path[2]-0)]
-            .children = this.display;
+          case 3:
+            if(!this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children)
+               this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children = []
+            this.data.children[path[0]-1].children[path[1]-1].children[path[2]-1].children.unshift(project);
             break;
         }
-
-        // project => children => chirdren
       }
       else {
         this.data.children.unshift(project);
@@ -434,51 +427,66 @@ export default {
     handleSelected(tr) {
       if (this.taskId)
         this.$router.push(
-          `/?project=${this.projectId}&task=${this.taskId}-${tr.id}`
+          `/?project=${this.projectId}&task=${this.taskId}-${
+            tr.id.toString()[0]
+          }`
         );
       else
         this.$router.push(
-          `/?project=${this.projectId}&task=${tr.id}`
+          `/?project=${this.projectId}&task=${tr.id.toString()[0]}`
         );
     },
     push(p) {
       this.$router.push(p);
     },
-    updateTable() {
-
-      this.projectId = this.$route.query.project;
-      this.taskId = this.$route.query.task;
-      if(!this.data.children) {
-        this.display = []
-        return;
-      }
-      else {
-        this.display = this.data.children;
-      }
-
-      this.breadcrumb = [
-        { title: "Home", query: `/?project=${this.projectId}` }
-      ];
-
-      if (this.taskId) {
-        let taskLine = "";
-        this.taskId.split("-").forEach((x, i) => {
-          taskLine += x + "-";
-           this.breadcrumb.push({
-            title: this.display[this.display.map(x => x.id).indexOf(x-0)].name,
-            query: `/?project=${this.projectId}&task=${taskLine}`.slice(0, -1)
-          });
-
-          this.display = this.display[this.display.map(x => x.id).indexOf(x-0)].children;
+    updateBreadcrumb() {
+      this.breadcrumb = [{ title: "Home", query: `/?project=${this.projectId}` }];
+      
+      let taskLine = "";
+      this.taskId.split("-").forEach((x,i) => {
+        taskLine += x + "-";
+        this.breadcrumb.push({
+          title: this.display[x - 1].name,
+          query: `/?project=${this.projectId}&task=${taskLine}`.slice(0, -1)
         });
-      }
-
-     
+      })
+      
       if (this.breadcrumb.length > 4) {
         this.breadcrumb = this.breadcrumb.slice(-4);
         this.breadcrumb[0].title = "..." + this.breadcrumb[0].title;
       }
+    },
+    updateTable() {
 
+      // Project ID selection
+      this.projectId = this.$route.query.project;
+      this.taskId = this.$route.query.task;
+      
+      // Init
+      this.display = []
+      
+      // If data object doesn't has any children and root is empty
+      if(!this.data.children)
+        return
+      else
+        this.display = this.data.children;
+
+      // If ?task doesn't exist
+      if (!this.taskId) {
+        this.removeDetailsCaret(500);
+        return;
+      }
+      
+      // Breadcrumb update
+      this.updateBreadcrumb();
+
+      // Navigation
+      this.taskId.split("-").forEach((x, i) => {
+        // x -> id of task
+        // BUG
+        this.display = this.display[x - 1].children;
+      });
+      
       this.removeDetailsCaret(500);
     }
   },
