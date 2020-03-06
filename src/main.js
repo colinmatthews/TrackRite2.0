@@ -28,6 +28,9 @@ import "./assets/scss/vuesax/extraComponents/agGridStyleOverride.scss";
 // Globally Registered Components
 import './globalComponents.js'
 
+// Firebase
+import '@/firebase/firebaseConfig'
+import * as firebaseui from 'firebaseui'
 
 // Styles: SCSS
 import './assets/scss/main.scss'
@@ -37,10 +40,12 @@ import './assets/scss/main.scss'
 import '@/assets/css/main.css';
 
 
+
+
 // Vue Router
 import router from './router'
 
-let HTTPClient = axios.create({ baseURL: 'https://trackrite.azure-api.net/trackriteprod/'});
+let HTTPClient = axios.create({ baseURL: 'http://localhost:8081/'});
 
 // Vuex Store
 import store from './store/store'

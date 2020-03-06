@@ -235,11 +235,11 @@ export default {
 
         // PROFILE
         user_displayName() {
-            return "john_doe"
+            return this.$store.state.AppActiveUser.displayName
             // return JSON.parse(localStorage.getItem('userInfo')).displayName
         },
         activeUserImg() {
-            return this.$store.state.AppActiveUser.img
+            return "https://ui-avatars.com/api/?name=" + this.$store.state.AppActiveUser.displayName
             // return JSON.parse(localStorage.getItem('userInfo')).photoURL || this.$store.state.AppActiveUser.img;
         }
     },

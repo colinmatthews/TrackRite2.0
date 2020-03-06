@@ -25,6 +25,9 @@ const actions = {
     arrangeStarredPagesMore({ commit }, list) {
       commit('ARRANGE_STARRED_PAGES_MORE', list)
     },
+    updateUserInfo({ commit }, payload) {
+      commit('UPDATE_USER_INFO', payload)
+    },
 }
 
 export default actions
