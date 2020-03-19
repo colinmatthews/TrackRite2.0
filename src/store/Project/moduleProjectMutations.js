@@ -14,8 +14,8 @@ export default{
   SET_ALL_PROJECTS(state,array){
     state.allProjects = array
   },
-  SET_PROJECTS_LOADED(state){ 
-    state.projectsLoaded = true
+  SET_CONTENT_LOADED(state){ 
+    state.contentLoaded = true
   }
   
 }

@@ -7,5 +7,23 @@
   Author URL: http://www.themeforest.net/user/pixinvent
 ==========================================================================================*/
 
+import firebase from 'firebase/app'
+import 'firebase/auth'
+export default {
+  currentUserKey:(state) => {
+    let allUsers = state.activeUsers
+    let uid = firebase.auth().currentUser.uid
+    let currentUserKey = {}
 
-export default {}
+    allUsers.forEach(el => {
+      console.log(el)
+      console.log(el.uid == uid)
+      if(el.uid == uid){
+        currentUserKey = el.key
+      }
+    });
+
+    return currentUserKey
+  }
+
+}

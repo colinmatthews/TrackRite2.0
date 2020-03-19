@@ -27,33 +27,21 @@ export default [
     icon: "HomeIcon",
   },
   {
+    url: "/tasks",
+    name: "Tasks",
+    slug: "tasks",
+    icon: "CheckCircleIcon",
+  },
+  {
     url: '/projects',
     name: 'Projects',
     slug: 'projects',
-    icon: "FolderIcon",
+    icon: "BookOpenIcon",
   },
   {
-    url: '/marketplace',
-    name: 'Marketplace',
-    slug: 'marketplace',
-    icon: "ShoppingBagIcon",
-  },
-  {
-    url: '/checkout',
-    name: 'Checkout',
-    slug: 'checkout',
-    icon: "ShoppingCartIcon",
-  },
-  {
-    url: '/reports',
-    name: 'Reports',
-    slug: 'reports',
-    icon: "FileIcon",
-  },
-  {
-    url: '/admin',
-    name: 'Admin',
-    slug: 'admin',
+    url: '/profile',
+    name: 'Profile',
+    slug: 'profile',
     icon: "UserIcon",
   },
 

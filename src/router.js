@@ -34,9 +34,9 @@ const router = new Router({
               }
               },
               {
-                path: '/checkout',
-                name: 'checkout',
-                component: () => import('./views/marketplace/Checkout.vue'),
+                path: '/tasks',
+                name: '/tasks',
+                component: () => import('./views/tasks/Tasks.vue'),
                 meta:{
                   authRequired:true
               }

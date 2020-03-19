@@ -1,9 +1,11 @@
 export default{
     currentProject:{},
-    currentPath:{},
     currentTask:{},
     children:[],
     parent:{},
     allTasks:[],
-    breadcrumbTitles:["Home"]
+    currentSelected:{},
+    sidebarActive:false,
+    sidebarEditing:false,
+    breadcrumbTitles:[{title:"Home",url:"/tasks"}]
   }

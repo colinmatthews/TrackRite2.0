@@ -15,5 +15,7 @@ export default {
     isUserLoggedIn: () => (localStorage.getItem('userInfo') && firebase.auth().currentUser),
     isEmailValidated:() => firebase.auth().currentUser.emailVerified,
     firebaseToken:null,
+    activeUsers:[],
+    favoriteProjects:[],
 
 }

@@ -3,5 +3,5 @@ export default{
   privateProjectContents:[],
   publicProjectKeys:[],
   publicProjectContents:[],
-  projectsLoaded:false,
+  contentLoaded:false,
 }

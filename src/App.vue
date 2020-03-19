@@ -76,11 +76,6 @@ export default {
   border-radius: 10px;
 }
 
-.vs-dropdown--menu {
-  width: 90vw;
-}
-
-.vs-dropdown--menu
 
 /* Handle */
 ::-webkit-scrollbar-thumb {

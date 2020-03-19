@@ -14,7 +14,6 @@ export default{
   async initializePublicProjectContents({ commit, state,rootState }) {
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/public/"
     let token = rootState.auth.firebaseToken
-    console.log(token)
     await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
       commit('SET_PUBLIC_CONTENTS',res.data)
     })
@@ -45,8 +44,8 @@ export default{
     })
   },
 
-  projectsLoaded({commit}){
-    commit('SET_PROJECTS_LOADED')
+  setContentLoaded({commit}){
+    commit('SET_CONTENT_LOADED')
   }
 
 }

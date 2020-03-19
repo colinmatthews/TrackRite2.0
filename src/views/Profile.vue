@@ -186,9 +186,6 @@ export default {
 
       user.delete().then(function() {
         scope.acceptAlert();
-        setTimeout(() => {
-          scope.$router.push('/pages/login')
-        },2000)
        
       }).catch(function(error) {
         scope.$vs.notify({
@@ -267,7 +264,7 @@ export default {
         });
 
       this.user_data = user_data;
-      if(user_data.providerId != 'google.com'){
+      if(user_data.providerId != 'microsoft.com'){
         this.can_edit = true
       }
     }

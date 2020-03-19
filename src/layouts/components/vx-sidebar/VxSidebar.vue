@@ -43,6 +43,7 @@
                                 <span v-show="!sidebarItemsMin" class="truncate">{{ sidebarItem.name }}</span>
                                 <vs-chip class="ml-auto" :color="sidebarItem.tagColor" v-if="sidebarItem.tag && (isMouseEnter || !reduce)">{{ sidebarItem.tag }}</vs-chip>
                             </vx-sidebar-item>
+                            
 
                             <!-- IF HAVE SUBMENU / DROPDOWN -->
                             <template v-else>
@@ -50,10 +51,18 @@
                             </template>
                         </template>
                     </template>
+                    <template v-for="(project, index) in favoriteProjects" >
+                            <!-- IF IT'S SINGLE ITEM -->
+                            <vx-sidebar-item :key="`project-${index}`" :index="index" style="position:fixed" :style="{bottom:calculateBottom(index)}" icon="StarIcon" :to="'/task/' + project.key.id">
+                                <span v-show="!sidebarItemsMin" class="truncate">{{ project.title }}</span>
+                            </vx-sidebar-item>   
+                    </template>
                 </VuePerfectScrollbar>
+
             </div>
         </vs-sidebar>
         <div v-hammer:swipe.right="onSwipeRightSidebarSwipeArea" v-if="!isSidebarActive" class="sidebar-swipe-area" id="sidebar-swipe-area"></div>
+       
     </div>
 </template>
 
@@ -61,6 +70,7 @@
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import VxSidebarGroup from './VxSidebarGroup.vue'
 import VxSidebarItem  from './VxSidebarItem.vue'
+import {mapState} from 'vuex'
 
 export default {
     name: 'vx-sidebar',
@@ -101,6 +111,10 @@ export default {
         showShadowBottom: false,
     }),
     computed: {
+        ...mapState('auth',{
+            favoriteProjects: state => state.favoriteProjects
+        }),
+
         isSidebarActive: {
             get() {
                 return this.$store.state.isSidebarActive
@@ -220,6 +234,9 @@ export default {
         },
         onSwipeRightSidebarSwipeArea() {
           if(!this.isSidebarActive && this.showCloseButton) this.isSidebarActive = true
+        },
+        calculateBottom(index){
+            return index * 40 + 10 + "px";
         }
     },
     components: {

@@ -85,7 +85,7 @@ export default {
                     })
 
                     // Send user registration email
-                    user.sendEmailVerification();
+                    //user.sendEmailVerification();
                 }
 
                 // Close animation if passed as payload
@@ -235,6 +235,45 @@ export default {
                 })
             })
     },
+    // Github Login
+    loginWithMicrosoft({commit, state, dispatch}, payload) {
+        if (state.isUserLoggedIn()) {
+            payload.notify({
+                title: 'Login Attempt',
+                text: 'You are already logged in!',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle',
+                color: 'warning'
+            });
+            return false
+        }
+        const provider = new firebase.auth.OAuthProvider('microsoft.com');
+
+        firebase.auth().signInWithPopup(provider)
+            .then(async (result) => {
+                let token = result.credential.accessToken
+                let url = "https://graph.microsoft.com/v1.0/me"
+                await this.$http.get(url ,{headers: {"Authorization" : "Bearer " + token}}).then(res => {
+                    dispatch('updateUsername', {
+                        user: result.user,
+                        username: res.data.displayName,
+                        notify: payload.notify,
+                        isReloadRequired: true
+                      })
+                    router.push(router.currentRoute.query.to || '/');
+                    commit('UPDATE_AUTHENTICATED_USER', res)
+                })
+            }).catch((err) => {
+                payload.notify({
+                    time: 2500,
+                    title: 'Error',
+                    text: err.message,
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle',
+                    color: 'danger'
+                });
+            })
+    },
     registerUser({dispatch}, payload) {
           // create user using firebase
         firebase.auth().createUserWithEmailAndPassword(payload.userDetails.email, payload.userDetails.password)
@@ -264,6 +303,7 @@ export default {
                 })
             })
     },
+
     updateUsername({ commit }, payload) {
         payload.user.updateProfile({
             displayName: payload.username
@@ -354,11 +394,98 @@ export default {
         jwt.refreshToken().then(response => { resolve(response) })
       })
     },
+
     async setToken({commit},user){
         if (user != null){
             await user.getIdToken(true /* Forces refresh */).then(token => {
                 commit('SET_TOKEN', token)
             })
         }
-    }
+    },
+
+    async postUser({commit,state,dispatch}){
+        let user = firebase.auth().currentUser;
+        let token = state.firebaseToken
+        let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/"
+        let data = {
+            uid:user.uid,
+            displayName:user.displayName,
+            favoriteProjects:null
+        }
+        await this.$http.post(url,data ,{headers: {"Authorization" : "Bearer " + token}}).then(res => {
+            console.log(res)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    },
+
+    async getActiveUsers({commit,state}){
+        let token = state.firebaseToken
+        let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/"
+        await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+            commit('SET_ACTIVE_USERS',res.data)
+        })
+        .catch(err => {
+            console.log(err)
+        }) 
+    },
+
+    async getFavoriteProjects({commit,state}){
+        let token = state.firebaseToken
+        let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/uid"
+        await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+            if(res.data !== null){
+                if(res.data[0].favoriteProjects != null){
+                    //console.log(res.data[0])
+                    commit('SET_FAVORITE_PROJECTS',res.data[0].favoriteProjects)
+                }         
+            }        
+        })
+        .catch(err => {
+            console.log(err)
+        }) 
+
+    },
+
+    async updateUser({commit,state,getters}){
+        let user = firebase.auth().currentUser;
+        let url = process.env.VUE_APP_FUNCTIONS_URL + "/users"
+        let token = state.firebaseToken
+        let data = {
+            displayName:user.displayName,
+            favoriteProjects:state.favoriteProjects
+        }
+        
+        let key = getters.currentUserKey
+        let entity = {
+            data:data,
+            key:key
+        }
+
+        await this.$http.put(url,entity ,{headers: {"Authorization" : "Bearer " + token}}).then(res => {
+            //console.log(res)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    
+    },
+    async commitPushFavoriteProject({commit},obj){
+        commit('PUSH_FAVORITE_PROJECTS',obj)
+    },
+    async commitSpliceFavoriteProject({commit},obj){
+        commit('SPLICE_FAVORITE_PROJECTS',obj)
+    },
+    async pushFavoriteProject({dispatch},obj){
+        await dispatch('commitPushFavoriteProject',obj)
+        await dispatch('updateUser')
+    
+    },
+    async spliceFavoriteProject({dispatch,state},obj){
+        await dispatch('commitSpliceFavoriteProject',obj)
+        await dispatch('updateUser')
+    },
+
+
 }

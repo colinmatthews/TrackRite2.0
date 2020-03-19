@@ -15,5 +15,28 @@ export default {
   },
   SET_TOKEN(state,token){
     state.firebaseToken = token
+  },
+  UPDATE_AUTHENTICATED_USER(state, user) {
+		localStorage.setItem('userInfo', JSON.stringify(user));
+		localStorage.setItem('userRole', 'admin');
+  },
+  SET_ACTIVE_USERS(state,array){
+    state.activeUsers = array
+  },
+  PUSH_FAVORITE_PROJECTS(state,item){
+    state.favoriteProjects.push(item)
+  }, 
+  SPLICE_FAVORITE_PROJECTS(state,item){
+    let itemId = item.key.id
+    let projectIds = state.favoriteProjects.map(x => x.key.id)
+
+    let index = projectIds.indexOf(itemId)
+  
+    if (index > -1) {
+      state.favoriteProjects.splice(index, 1);
+    }
+  },
+  SET_FAVORITE_PROJECTS(state,item){
+    state.favoriteProjects = item
   }
 }

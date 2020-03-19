@@ -67,6 +67,7 @@
             <feather-icon icon="SearchIcon" @click="showFullSearch = true" class="cursor-pointer navbar-fuzzy-search ml-4"></feather-icon>
 
       <!-- NOTIFICATIONS -->
+      <!--
       <vs-dropdown vs-custom-content vs-trigger-click class="cursor-pointer ml-4">
         <feather-icon icon="BellIcon" class="cursor-pointer mt-1 sm:mr-6 mr-2" :badge="unreadNotifications.length"></feather-icon>
         <vs-dropdown-menu class="notification-dropdown dropdown-custom vx-navbar-dropdown">
@@ -111,12 +112,11 @@
                     </div>
         </vs-dropdown-menu>
       </vs-dropdown>
-
+      -->
       <!-- USER META -->
       <div class="the-navbar__user-meta flex items-center">
         <div class="text-right leading-tight hidden sm:block">
           <p class="font-semibold">{{ user_displayName }}</p>
-          <small>Available</small>
         </div>
         <vs-dropdown vs-custom-content vs-trigger-click class="cursor-pointer">
           <div class="con-img ml-3">
@@ -139,12 +139,9 @@
           </div>
           <vs-dropdown-menu class="vx-navbar-dropdown">
             <ul style="min-width: 9rem">
-              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white"><feather-icon icon="UserIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Profile</span></li>
-              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white"><feather-icon icon="MailIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Inbox</span></li>
-              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white"><feather-icon icon="CheckSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Tasks</span></li>
-              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white"><feather-icon icon="MessageSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Chat</span></li>
+              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/profile')"><feather-icon icon="UserIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Profile</span></li>
               <vs-divider class="m-1"></vs-divider>
-              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/pages/login')"><feather-icon icon="LogOutIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Logout</span></li>
+              <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="logout()"><feather-icon icon="LogOutIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Logout</span></li>
             </ul>
           </vs-dropdown-menu>
         </vs-dropdown>
@@ -159,6 +156,8 @@
 import VxAutoSuggest from '@/components/vx-auto-suggest/VxAutoSuggest.vue';
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import draggable from 'vuedraggable'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 export default {
     name: "the-navbar",
@@ -235,11 +234,12 @@ export default {
 
         // PROFILE
         user_displayName() {
-            return this.$store.state.AppActiveUser.displayName
+            let user = firebase.auth().currentUser;
+            return user.displayName
             // return JSON.parse(localStorage.getItem('userInfo')).displayName
         },
         activeUserImg() {
-            return "https://ui-avatars.com/api/?name=" + this.$store.state.AppActiveUser.displayName
+            return "https://ui-avatars.com/api/?name=" + this.user_displayName
             // return JSON.parse(localStorage.getItem('userInfo')).photoURL || this.$store.state.AppActiveUser.img;
         }
     },
@@ -307,7 +307,19 @@ export default {
           if(sec) date.setSeconds(date.getSeconds() - sec)
 
           return date
-        }
+        }, 
+        logout() {
+           
+            // if user is looged in via firebase
+            const firebaseCurrentUser = firebase.auth().currentUser
+
+            if (firebaseCurrentUser) {
+                firebase.auth().signOut().then(() => {
+                    this.$router.push('/pages/login')
+                    localStorage.removeItem('userInfo');
+                })
+            }
+        },
     },
     directives: {
         'click-outside': {
@@ -336,3 +348,9 @@ export default {
     },
 }
 </script>
+
+<style >
+.navbar-fuzzy-search{
+  padding-right:10px;
+}
+</style>

@@ -17,6 +17,10 @@
           style="position: relative!important; z-index: -10!important;"
         >
           <vs-card fixedHeight id="card-project">
+            <div id="favorite-icon" :style="checkFavorite(project)">
+              <vs-button @click="setFavorite(project)"  icon="star" color="warning" v-if="checkFavorite(project)"></vs-button> 
+               <vs-button @click="setFavorite(project)"  icon="star" type="border" v-else></vs-button> 
+            </div>
             <div id="delete-icon" @click="deleteConfirm(project.key.id)">
               <i class="material-icons">clear</i>
             </div>
@@ -54,58 +58,118 @@
         </vs-tabs>
       </template>
     </vs-popup>
-
-    <div id="controls" @click="$router.push('/projects/new')">
+    
+    <transition name="fade" >
+    <div id="icon-controls" @click="$router.push('/projects/new')" v-if="showControls">
       <vx-tooltip text="Add new project" position="left">
         <i class="material-icons add-new-project">add</i>
       </vx-tooltip>
     </div>
+    </transition>
 
   </div>
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 import {mapActions,mapState, mapGetters} from 'vuex'
 export default {
   data: () => ({
     deleteID:null,
     popupActive: false,
     popupDetails: null,
+    showControls:false
   }),
   computed:{
     ...mapState('project', {
       allProjects: state => state.allProjects,
-      projectsLoaded: state => state.projectsLoaded
+      contentLoaded: state => state.contentLoaded
+    }),
+
+    ...mapState('auth', {
+      favoriteProjects: state => state.favoriteProjects,
+      activeUsers: state => state.activeUsers
     }),
 
     ...mapGetters('project',[
       'getProjects'
-    ])
+    ]),
 
   },
+  beforeDestroy(){
+    this.showControls = false
+  },
   created() {
-    let user = firebase.auth().currentUser;
-    this.setToken(user)
-    .then(() => {
-      if(!this.projectsLoaded){
-        this.initializePublicProjectKeys()
-        this.initializePrivateProjectKeys()
-        this.initializePublicProjectContents()
-        this.initializePrivateProjectContents()
-      } 
-    })
+    if(!this.contentLoaded){
+      let user = firebase.auth().currentUser;
+      this.setToken(user)
+      .then(async () => {
+          await this.initializePublicProjectKeys()
+          await this.initializePrivateProjectKeys()
+          await this.initializePublicProjectContents()
+          await this.initializePrivateProjectContents()
+          await this.getFavoriteProjects()
+      })
+      .then(async () => {
+        let key = this.getProjects
+        if(typeof(key) !== 'undefined'){
+          console.log(key)
+          await this.setCurrentProject(key[0])
+          await this.getProjectChildren()
+        }
+        setTimeout(() => {
+          this.showControls = true
+        },100)
+        
+      })
+      .then(async() =>{
+        await this.getActiveUsers()
+        .then(() => {
+          let newUser = true
+        
+          this.activeUsers.forEach(el => {
+          
+            if(el.uid == user.uid){
+              
+              newUser = false
+            }
+          })
+          /*
+          if(newUser){
+            this.postUser()
+          }
+          */
+        })   
+      })
+      .then(() => {
+        this.setContentLoaded()
+      })
+    }
   },
   methods: {
     ...mapActions('project',[
       'initializePublicProjectKeys', 
       'initializePublicProjectContents',
       'initializePrivateProjectKeys',
-      'initializePrivateProjectContents'
+      'initializePrivateProjectContents',
+      'setContentLoaded'
     ]),
 
     ...mapActions('auth',[
-      'setToken'
+      'setToken',
+      'getActiveUsers',
+      'postUser',
+      'setToken',
+      'pushFavoriteProject',
+      'spliceFavoriteProject',
+      'getFavoriteProjects'
+    ]),
+
+    ...mapActions('tasks',[
+      'setCurrentProject',
+      'getProjectChildren',
+      'setCurrentTask',
     ]),
 
     deleteConfirm(id){
@@ -143,6 +207,48 @@ export default {
         1
       );
     },
+    checkFavorite(project){
+      let favorite = false;
+      this.favoriteProjects.forEach(el => {
+        if(el.key.id == project.key.id){
+          favorite = true
+        }
+      })
+      return favorite
+      
+    },
+    setFavorite(project){
+      let found = false;
+      if(this.favoriteProjects == null){
+        this.pushFavoriteProject(project)
+        return;
+      }
+      else{
+        this.favoriteProjects.forEach(el => {
+          if(el.key.id == project.key.id){
+            found = true
+          }
+        })
+        
+        if(found){
+          this.spliceFavoriteProject(project)
+        }
+        else{
+          if(this.favoriteProjects.length == 4){
+            this.$vs.notify({
+            color:'warning',
+            title:'Maximum Favorites',
+            text:'You can only set a maximum of four favorites.'
+            })
+          }
+          else{
+            this.pushFavoriteProject(project)
+          }
+        }
+      }
+     
+    }
+
   
   }
 };
@@ -208,12 +314,13 @@ export default {
   z-index: 999;
 }
 
-#controls {
-  position: fixed;
-  bottom: 20px;
+#icon-controls {
+  position: absolute;
   right: 20px;
   user-select: none;
-}
+  bottom: 20px;
+  z-index: 100;
+} 
 .wizard-header {
   padding: 0px!Important;
 }
@@ -256,6 +363,14 @@ export default {
   cursor: pointer;
 }
 
+#favorite-icon {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 100;
+  cursor: pointer;
+}
+
 .submit-button {
   position: absolute;
   width: 200px;
@@ -265,4 +380,12 @@ export default {
 #delete-icon > i {
   font-size: 20px;
 }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
 </style>
