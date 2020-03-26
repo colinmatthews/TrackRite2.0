@@ -404,6 +404,7 @@ export default {
     },
 
     async postUser({commit,state,dispatch}){
+        await dispatch('setToken')
         let user = firebase.auth().currentUser;
         let token = state.firebaseToken
         let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/"
@@ -420,7 +421,8 @@ export default {
         })
     },
 
-    async getActiveUsers({commit,state}){
+    async getActiveUsers({commit,state,dispatch}){
+        await dispatch('setToken')
         let token = state.firebaseToken
         let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/"
         await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
@@ -431,7 +433,8 @@ export default {
         }) 
     },
 
-    async getFavoriteProjects({commit,state}){
+    async getFavoriteProjects({commit,state,dispatch}){
+        await dispatch('setToken')
         let token = state.firebaseToken
         let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/uid"
         await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
@@ -448,7 +451,8 @@ export default {
 
     },
 
-    async updateUser({commit,state,getters}){
+    async updateUser({commit,state,getters,dispatch}){
+        await dispatch('setToken')
         let user = firebase.auth().currentUser;
         let url = process.env.VUE_APP_FUNCTIONS_URL + "/users"
         let token = state.firebaseToken

@@ -19,7 +19,7 @@
           <vs-card fixedHeight id="card-project">
             <div id="favorite-icon" :style="checkFavorite(project)">
               <vs-button @click="setFavorite(project)"  icon="star" color="warning" v-if="checkFavorite(project)"></vs-button> 
-               <vs-button @click="setFavorite(project)"  icon="star" type="border" v-else></vs-button> 
+              <vs-button @click="setFavorite(project)"  icon="star" type="border" v-else></vs-button> 
             </div>
             <div id="delete-icon" @click="deleteConfirm(project.key.id)">
               <i class="material-icons">clear</i>
@@ -27,24 +27,80 @@
             <div class="image">
               <img
                 id="image-preview"
-                v-on:click="popupDetails = project; popupActive = true"
+                @click="$router.push('/tasks/' + project.key.id)"
                 src="@/assets/images/sample.png"
               />
             </div>
 
             <h2 id="card-title">{{ project.title}}</h2>
-            <small id="card-description">Lorem ipsum dolor sit amet.</small>
+            <small id="card-description">{{project.description}}</small>
+            <div @click="handleProjectPopup(project)">
+              <vs-icon icon-pack="feather" icon="icon-more-vertical" class="projectDetailsButton" > </vs-icon> 
+            </div>
           </vs-card>
         </vs-col>
       </vs-row>
     </div>
 
 
-    <vs-popup title="Project details" v-if="popupDetails" :active.sync="popupActive">
+    <vs-popup title="Project Details" v-if="selectedProject" :active.sync="popupActive">
       <template lang="html">
         <vs-tabs>
           <vs-tab label="Details" icon-pack="feather" icon="icon-home">
-            <h5 class="my-3">{{ popupDetails.title }}</h5>
+
+            <label class="vs-select--label input-select-label-primary"><b>Title</b></label>
+            <vs-textarea class="my-3" :value="selectedProject.title" @input="setProjectTitle" ></vs-textarea>
+
+            <label class="vs-select--label input-select-label-primary"><b>Description</b></label>
+            <vs-textarea class="my-3" :value="selectedProject.description" @input="setProjectDescription" ></vs-textarea>
+           
+            
+              <vs-table :data="selectedProject.owners"> 
+                 <template slot="header">
+                  <label class="vs-select--label input-select-label-primary"><b>Owners</b></label>
+                 </template>
+                <template slot="thead" >
+                <th class="ownerTableHeader">
+                  Name
+                </th>
+                <th class="ownerTableHeader">
+                  Actions
+                </th>
+              </template>
+
+              <template slot-scope="{data}">
+                <vs-tr v-for="tr in selectedProject.owners" :key ="tr" :data="tr" class="border_bottom">
+                  <vs-td>
+                    <span>{{getDisplayName(tr)}}</span>
+                  </vs-td>
+                  <vs-td>
+                    <vs-button color="danger">Delete</vs-button>
+                  </vs-td>
+                </vs-tr>
+                <tr>
+                  <vs-td>
+                    <vue-auto-suggest
+                    placeholder="Search a coworker.."
+                    :data="autocompleteData"
+                    :filter-by-query="true">
+
+                      <template v-slot:users="{ suggestion }">
+                        <div class="flex items-end leading-none py-1">
+                          <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
+                          <span class="mt-1">{{ suggestion.displayName }}</span>
+                        </div>
+                      </template>
+                   </vue-auto-suggest>
+                  </vs-td>
+                  <vs-td>
+                    <vs-button color="success" style="margin-bottom:7px;">Add</vs-button>
+                  </vs-td>
+                </tr>
+              </template>
+               
+              </vs-table>
+            
+
           </vs-tab>
 
           <vs-tab label="Access" icon-pack="feather" icon="icon-box"></vs-tab>
@@ -74,27 +130,58 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import {mapActions,mapState, mapGetters} from 'vuex'
+import VueAutoSuggest from '../../components/vx-auto-suggest/VxAutoSuggest.vue'
+import 'vue-context/dist/css/vue-context.css';
 export default {
   data: () => ({
     deleteID:null,
     popupActive: false,
-    popupDetails: null,
     showControls:false
   }),
+  components:{
+    VueAutoSuggest
+  },
+  watch:{
+    popupActive(){
+      if(this.popupActive == false){
+       this.updateProject()
+      }
+    }
+  },
   computed:{
     ...mapState('project', {
       allProjects: state => state.allProjects,
-      contentLoaded: state => state.contentLoaded
+      contentLoaded: state => state.contentLoaded,
+      selectedProject: state => state.selectedProject
     }),
 
     ...mapState('auth', {
       favoriteProjects: state => state.favoriteProjects,
       activeUsers: state => state.activeUsers
+     
     }),
 
     ...mapGetters('project',[
-      'getProjects'
+      'getProjects',
+      'getDisplayName'
     ]),
+     autocompleteData(){
+      let users = this.activeUsers
+      let data = {}
+      data.users = {}
+      data.users.key = 'displayName'
+      data.users.data = []
+
+      users.forEach(el => {
+        data.users.data.push({
+          displayName:el.displayName,
+          uid:el.uid
+        })
+      })
+
+      return data
+    },
+    
 
   },
   beforeDestroy(){
@@ -143,8 +230,13 @@ export default {
         })   
       })
       .then(() => {
-        this.setContentLoaded()
+        setTimeout(() => {
+          this.showControls = true
+        },1000)
       })
+    }
+    else{
+       this.showControls = true
     }
   },
   methods: {
@@ -153,7 +245,8 @@ export default {
       'initializePublicProjectContents',
       'initializePrivateProjectKeys',
       'initializePrivateProjectContents',
-      'setContentLoaded'
+      'setContentLoaded',
+      'updateProject'
     ]),
 
     ...mapActions('auth',[
@@ -246,7 +339,16 @@ export default {
           }
         }
       }
-     
+    },
+    handleProjectPopup(project){
+      this.$store.commit('project/SET_SELECTED_PROJECT',project,{ root: true })
+      this.popupActive = true;
+    },
+    setProjectTitle(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_TITLE',e,{ root: true })
+    },
+    setProjectDescription(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_DESCRIPTION',e,{ root: true })
     }
 
   
@@ -386,6 +488,24 @@ export default {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.projectDetailsButton{
+  float:right;
+  position: absolute;
+  bottom: 10px;
+  right: 5px;
+  cursor: pointer;
+
+}
+
+.addOwnerButton{
+  cursor: pointer;
+  padding-left: 5px;
+
+}
+
+.ownerTableHeader{
+  background-color: #ebebeb;
 }
 
 </style>

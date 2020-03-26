@@ -9,6 +9,7 @@
 
 
 @import '../_variables.scss';
+@import url('https://fonts.googleapis.com/css?family=Raleway:800&display=swap');
 
 .main-menu-sidebar{
   white-space: nowrap;
@@ -55,8 +56,9 @@
       .logo-text{
         font-size: 22px;
         font-weight: 600;
-        color: #7367F0;
+        color: #FFF;
         animation: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) 0s normal forwards 1 fadein;
+        
       }
     }
 

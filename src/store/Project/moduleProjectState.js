@@ -4,4 +4,5 @@ export default{
   publicProjectKeys:[],
   publicProjectContents:[],
   contentLoaded:false,
+  selectedProject:{}
 }

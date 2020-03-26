@@ -12,6 +12,7 @@ import moduleAuth from './auth/moduleAuth.js'
 import moduleProject from './Project/moduleProject.js'
 import moduleTasks from './Tasks/moduleTasks.js'
 import moduleTeams from './Teams/moduleTeams.js'
+import moduleDashboard from './Dashboard/moduleDashboard.js'
 
 export default new Vuex.Store({
     mutations,
@@ -22,7 +23,8 @@ export default new Vuex.Store({
         auth:moduleAuth,
         project:moduleProject,
         tasks:moduleTasks,
-        teams:moduleTeams
+        teams:moduleTeams,
+        dashboard:moduleDashboard
     },
     strict: process.env.NODE_ENV !== 'production'
 })

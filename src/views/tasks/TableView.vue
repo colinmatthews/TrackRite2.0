@@ -24,7 +24,7 @@
               </template>
 
               <template slot-scope="{data}">
-                <vs-tr v-for="tr in data" :key ="tr.title" :data="tr" class="border_bottom">
+                <vs-tr v-for="tr in activeData" :key ="tr.title" :data="tr" class="border_bottom">
                   <vs-td>
                     <span v-if="tr.title != null">{{tr.title}}</span>
                     <span v-else><i>Empty</i> </span>
@@ -42,7 +42,7 @@
                     <span v-else><i>Empty</i></span>
                   </vs-td>
                   <vs-td>
-                  <span v-if="tr.owner != null">{{tr.owner.displayName}}</span>
+                    <span v-if="tr.owner != null">{{tr.owner.displayName}}</span>
                     <span v-else><i>Empty</i></span>
                   </vs-td>
                   <vs-td>
@@ -108,6 +108,9 @@ export default {
         this.setCurrentSelected(value)
       }
     },
+    activeData(){
+      return this.data.filter(el => el.archive == false)
+    }
 
   },
   methods:{
@@ -130,7 +133,8 @@ export default {
       let key = tr.key
       let crumb = {
         title:tr.title,
-        url:'/tasks/' + tr.key.id
+        key:tr.key,
+        tr:tr
       }
       
       this.appendToBreadcrumbTitles(crumb)

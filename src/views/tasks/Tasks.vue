@@ -1,5 +1,6 @@
 <template>
   <div id="home">
+     <ManageArchived  ref="managedArchived" />
     <div id="controls">
       <!--
        <vs-button
@@ -11,13 +12,7 @@
         icon="account_tree"
       >Diagram</vs-button>
       -->
-      <vs-button
-        color="primary"
-        @click="panelSwitcher = 2"
-        type="border"
-        :class="{ 'bg-primary': panelSwitcher == 2 }"
-        icon="pie_chart"
-      >Dashboard</vs-button>
+      <vs-button color="primary" @click="panelSwitcher = 2" type="border" :class="{ 'bg-primary': panelSwitcher == 2 }" icon="pie_chart">Dashboard</vs-button>
       <!--
       <vs-button
         ref="first-button"
@@ -28,87 +23,105 @@
         icon="list"
       >List</vs-button>
       -->
-      <vs-button
-        color="primary"
-        @click="panelSwitcher = 0; updateTable()"
-        type="border"
-        ref="first-btn"
-        :class="{ 'bg-primary':  panelSwitcher == 0 }"
-        icon="grid_on"
-      >Table</vs-button>
+      <vs-button color="primary" @click="panelSwitcher = 0;" type="border" ref="first-btn" :class="{ 'bg-primary':  panelSwitcher == 0 }" icon="grid_on">
+        Table
+      </vs-button>
     </div>
+    
 
     <transition name="fade" mode="out-in" key="133">
       <div>
+        
       <div class="title-block">
         <span id="title" href="#">
           {{ currentProject.title }}
         </span>
+        <div @click.stop="$refs.contextMenu.open($event)"  @contextmenu.prevent="$refs.contextMenu.open" class="contextDiv">
+            <vs-icon class="contextButton" icon-pack="feather" icon="icon-more-vertical" v-if="Object.keys(currentProject).length !== 0"> </vs-icon>
+          </div>
+
+        <vue-context ref="contextMenu" >
+          <li>
+            <a href="#" @click="$refs.managedArchived.openPopup()" class="flex items-center text-sm">
+              <feather-icon icon="PackageIcon" svgClasses="w-5 h-5" />
+              <span class="ml-2">Managed Archived</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" @click="alertNewFeature()" class="flex items-center text-sm">
+              <feather-icon icon="RepeatIcon" svgClasses="w-5 h-5" />
+              <span class="ml-2">Merge Project</span>
+            </a>
+          </li>
+      </vue-context>
       </div>
       <br>
        
 
       
       <!-- TABLE VIEW -->
-      <TableView v-if="panelSwitcher === 0" key="0" :data="children" :showControls="showControls"/>
-      
+      <TableView v-if="panelSwitcher === 0" key="0" :data="children" :showControls="showControls" />
+     
       
 
       <!-- LIST VIEW -->
       <div id="list" v-else-if="panelSwitcher === 1" key="1">
-        
-      
-
-      
       </div>
 
       <!-- DASHBOARD -->
       <div id="dashboard" v-else-if="panelSwitcher === 2" key="2">
-        <span id="title">{{ data.project_title }}</span> 
-        <DashboardView></DashboardView>
+        <Dashboard></Dashboard>
       </div>
 
       <!-- DIAGRAM VIEW -->
       <div id="tree" v-else-if="panelSwitcher === 3" key="3">
         <span id="title">Diagram</span>
-        
       </div>
-
-
 
       </div>
     </transition>
+  
+   
+    
   </div>
 </template>
 
 <script>
 import TableView from './TableView.vue';
-import DashboardView from '@/custom/DashboardView.vue';
+import Dashboard from './Dashboard';
 import ListViewTable from '@/custom/ListViewTable.vue';
-import flatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
-import {tree} from 'vued3tree'
+import ManageArchived from './ManageArchived.vue'
+import "flatpickr/dist/flatpickr.css"
+import { VueContext } from 'vue-context';
 import {mapActions,mapState, mapGetters} from 'vuex'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'vue-context/dist/css/vue-context.css';
 
 
 export default {
   components: {
-    flatPickr, 
     ListViewTable, 
     TableView,
-    DashboardView, 
-    tree
+    Dashboard,
+    VueContext,
+    ManageArchived
   },
   data: () => ({
+    manageArchivedActive:false,
     data: [],
     table: true,
     panelSwitcher: 0,
     icons: false,
     showControls:false,
   }),
-  
+  watch: {
+    $route(to, from) {
+      if('pid' in to.params){
+        this.loadProject()
+      }
+    }
+  },
   computed:{
     ...mapState('project', {
       allProjects: state => state.allProjects,
@@ -153,10 +166,54 @@ export default {
       'setCurrentProject',
       'getProjectChildren',
       'setCurrentTask',
+      'setBreadcrumbTitles'
     ]),
     addProject() {
       this.$router.push("/projects/new");
     },
+    alertNewFeature(){
+      //this.removeProject(this.deleteID)
+      this.$vs.notify({
+       
+        title:'Under Development',
+        text:'That feature isnt done yet. Stay tuned!'
+      })
+    },
+    async loadProject(){
+      let projects = this.getProjects
+      if(typeof(projects) !== 'undefined'){
+        let pid = this.$route.params.pid
+        let project = projects.filter(el => el.key.id == pid)
+        console.log(project)
+
+        if(project.length == 1){
+          await this.setCurrentProject(project[0])
+          await this.getProjectChildren()
+          if(this.children.length > 0) {
+          let currentChild = this.children[0]
+            await this.setBreadcrumbTitles([{
+              key:currentChild.key,
+              title:'Home',
+              tr:currentChild
+            }])
+          }
+          else{
+            this.setBreadcrumbTitles([])
+          }
+        }
+        else{
+          console.log('invalid url')
+          //Invalid project URL
+          this.$vs.notify({
+              title: 'Error',
+              text: 'Invalid URL. Please navigate to a valid project.',
+              color: 'danger',
+              iconPack: 'feather',
+              icon: 'icon-alert-circle'
+          })
+        }
+      }
+    }
   },
   created() {
     if(!this.contentLoaded){
@@ -170,11 +227,31 @@ export default {
           await this.getFavoriteProjects()
       })
       .then(async () => {
-        let key = this.getProjects
-        if(typeof(key) !== 'undefined'){
-          console.log(key)
-          await this.setCurrentProject(key[0])
-          await this.getProjectChildren()
+
+        let loadProject = false
+        let loadTask = false
+
+        if('pid' in this.$route.params) loadProject = true
+        if('tid' in this.$route.params) loadTask = true
+
+        // Load specific project and task
+        if(loadProject && loadTask){
+          // Set current project to pid by query
+
+
+          //Set current task to tid by query
+
+          
+          //Set current children to children of tid by query
+
+
+          //Set breadcrumb titles via ancerstor query
+          
+
+        }
+        //Load specific project at root
+        else if(loadProject){
+          this.loadProject()
         }
         setTimeout(() => {
           this.showControls = true
@@ -204,6 +281,38 @@ export default {
       .then(async () => {
         await this.setContentLoaded()
       })
+    }
+    // Content has already loaded but moving to tasks from another page
+    else{
+        let loadProject = false
+        let loadTask = false
+
+        if('pid' in this.$route.params) loadProject = true
+        if('tid' in this.$route.params) loadTask = true
+
+        // Load specific project and task
+        if(loadProject && loadTask){
+          // Set current project to pid by query
+
+
+          //Set current task to tid by query
+
+          
+          //Set current children to children of tid by query
+
+
+          //Set breadcrumb titles via ancerstor query
+          
+
+        }
+        //Load specific project at root
+        else if(loadProject){
+          this.loadProject()
+        }
+        setTimeout(() => {
+          this.showControls = true
+        },400)
+
     }
   },
 };
@@ -304,5 +413,11 @@ export default {
 
 #breadcrumb {
   cursor: pointer;
+}
+.contextButton{
+  display: inherit;
+}
+.contextDiv{
+   display: initial;
 }
 </style>

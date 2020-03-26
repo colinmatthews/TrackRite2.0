@@ -83,7 +83,7 @@ export default {
     methods: {
         CheckIsActive() {
             if (this.to) {
-                if(this.$route.meta.parent = "/task") this.activeLink = false // Disables active css for favorite projects
+                if(this.$route.meta.parent = "/tasks") this.activeLink = false // Disables active css for favorite projects
                 else if((this.to == this.$router.path && this.to) || (this.$route.meta.parent == this.slug)) this.activeLink = true
                 else this.activeLink = false
                 // if (this.$route.path.slice(1).includes(this.to.slice(1)) && this.to.slice(1)) this.activeLink = true

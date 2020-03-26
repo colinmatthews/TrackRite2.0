@@ -42,6 +42,22 @@ const router = new Router({
               }
               },
               {
+                path: '/tasks/:pid',
+                name: '/tasks/:pid',
+                component: () => import('./views/tasks/Tasks.vue'),
+                meta:{
+                  authRequired:true
+              }
+              },
+              {
+                path: '/tasks/:pid/:tid',
+                name: '/tasks/:pid/:tid',
+                component: () => import('./views/tasks/Tasks.vue'),
+                meta:{
+                  authRequired:true
+              }
+              },
+              {
                 path: '/marketplace',
                 name: 'marketplace',
                 component: () => import('./views/marketplace/Marketplace.vue'),

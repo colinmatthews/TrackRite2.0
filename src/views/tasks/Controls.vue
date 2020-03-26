@@ -50,7 +50,8 @@ export default {
         status:null,
         custom_columns:{},
         details:null,
-        owner:null
+        owner:null,
+        archive:false
       })
     })
    }

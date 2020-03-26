@@ -81,10 +81,15 @@ export default {
   },
   computed:{
     ...mapGetters('project',[
-      'getProjects'
+      'getProjects',
+      
     ]),
     ...mapState('auth', {
       activeUsers: state => state.activeUsers
+    }),
+
+    ...mapState('project', {
+      contentLoaded: state => state.contentLoaded
     }),
 
   },

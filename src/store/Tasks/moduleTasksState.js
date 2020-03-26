@@ -7,5 +7,6 @@ export default{
     currentSelected:{},
     sidebarActive:false,
     sidebarEditing:false,
-    breadcrumbTitles:[{title:"Home",url:"/tasks"}]
+    breadcrumbTitles:[],
+    archivedTasks:[]
   }

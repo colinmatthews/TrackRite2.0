@@ -11,6 +11,18 @@ export default{
     })
 
     return publicContent
+  },
+  getDisplayName:(state, getters, rootState) => (uid) => {
+    let users = rootState.auth.activeUsers
+    let displayName = ""
+    users.forEach(el => {
+      
+      if(el.uid === uid){
+        displayName = el.displayName
+      }
+    })
+
+    return displayName
   }
   
 }

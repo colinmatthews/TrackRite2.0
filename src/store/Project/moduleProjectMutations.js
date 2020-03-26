@@ -1,4 +1,5 @@
 export default{
+  //Initializing projects
   SET_PRIVATE_KEYS(state,array){
     state.privateProjectKeys = array
   },
@@ -16,6 +17,35 @@ export default{
   },
   SET_CONTENT_LOADED(state){ 
     state.contentLoaded = true
+  },
+
+  // Editing projects
+  SET_SELECTED_PROJECT(state,obj){
+    state.selectedProject = obj
+  },
+  SET_SELECTED_PROJECT_TITLE(state,obj){
+    state.selectedProject.title = obj
+  },
+  SET_SELECTED_PROJECT_START_DATE(state,obj){
+    state.selectedProject.start_date = obj
+  },
+  SET_SELECTED_PROJECT_DESCRIPTION(state,obj){
+    state.selectedProject.description = obj
+  },
+  SET_SELECTED_PROJECT_OWNER(state,obj){
+    state.selectedProject.owner = obj
+  },
+  APPEND_SELECTED_PROJECT_OWNER(state,obj){
+    state.selectedProject.owner.push(obj)
+  },
+  POP_SELECTED_PROJECT_OWNER(state){
+    state.selectedProject.owner.pop()
+  },
+  APPEND_SELECTED_PROJECT_USER(state,obj){
+    state.selectedProject.users.push(obj)
+  },
+  POP_SELECTED_PROJECT_USERS(state){
+    state.selectedProject.users.pop()
   }
   
 }

@@ -53,7 +53,7 @@
                     </template>
                     <template v-for="(project, index) in favoriteProjects" >
                             <!-- IF IT'S SINGLE ITEM -->
-                            <vx-sidebar-item :key="`project-${index}`" :index="index" style="position:fixed" :style="{bottom:calculateBottom(index)}" icon="StarIcon" :to="'/task/' + project.key.id">
+                            <vx-sidebar-item :key="`project-${index}`" :index="index" style="position:fixed" :style="{bottom:calculateBottom(index), width:showFullWidth(!sidebarItemsMin)}" icon="StarIcon" :to="'/tasks/' + project.key.id">
                                 <span v-show="!sidebarItemsMin" class="truncate">{{ project.title }}</span>
                             </vx-sidebar-item>   
                     </template>
@@ -71,6 +71,7 @@ import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import VxSidebarGroup from './VxSidebarGroup.vue'
 import VxSidebarItem  from './VxSidebarItem.vue'
 import {mapState} from 'vuex'
+
 
 export default {
     name: 'vx-sidebar',
@@ -224,6 +225,12 @@ export default {
                 else
                     this.$store.dispatch('updateSidebarWidth', 'default')
             }
+        },
+        showFullWidth(expanded){
+            if(expanded){
+                return 'auto'   
+            }
+            return '80px'
         },
         psSectionScroll() {
             if(this.$refs.mainSidebarPs.$el.scrollTop > 0) this.showShadowBottom = true;
