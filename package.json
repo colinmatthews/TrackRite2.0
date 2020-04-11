@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-testing": "vue-cli-service build --mode staging",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "deploy-staging": "gsutil rsync -R dist gs://staging.trackrite.ca"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.2",

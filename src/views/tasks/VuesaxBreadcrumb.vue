@@ -85,12 +85,6 @@ export default {
   created() {
     if(this.items) {
       this.items = this.items.map(item => {
-        if (typeof item.title === "function") {
-          return {
-            ...item,
-            title: item.title(this.$route.params)
-          }
-        }
         return item
       })
     }
@@ -131,7 +125,7 @@ export default {
         await this.setCurrentTask(task.tr)
 
         // Fetch new children and update table data
-        await this.getTaskChildren(task.key)
+        await this.getTaskChildren()
       }
 
       else{

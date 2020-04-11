@@ -23,6 +23,7 @@
         position: absolute;
         background: #fff;
         width: 100%;
+        z-index: 5000 !important;
 
         .auto-suggest__suggestion {
             padding: 0.8rem 1rem;

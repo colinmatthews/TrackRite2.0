@@ -117,7 +117,10 @@ export default {
   }),
   watch: {
     $route(to, from) {
-      if('pid' in to.params){
+      if('pid' in to.params && 'tid' in to.params){
+        console.log("loading to task")
+      }
+      else if('pid' in to.params){
         this.loadProject()
       }
     }
@@ -166,7 +169,9 @@ export default {
       'setCurrentProject',
       'getProjectChildren',
       'setCurrentTask',
-      'setBreadcrumbTitles'
+      'setBreadcrumbTitles',
+      'setCurrentTaskByURLSafeKey',
+      'getCurrentTaskBreadcrumbTitles'
     ]),
     addProject() {
       this.$router.push("/projects/new");
@@ -180,38 +185,95 @@ export default {
       })
     },
     async loadProject(){
-      let projects = this.getProjects
-      if(typeof(projects) !== 'undefined'){
-        let pid = this.$route.params.pid
-        let project = projects.filter(el => el.key.id == pid)
-        console.log(project)
+      try{
+        this.$store.commit('tasks/SET_CURRENT_MULTISELECTED',[]) // clear mutliselect
 
-        if(project.length == 1){
-          await this.setCurrentProject(project[0])
-          await this.getProjectChildren()
-          if(this.children.length > 0) {
-          let currentChild = this.children[0]
-            await this.setBreadcrumbTitles([{
-              key:currentChild.key,
-              title:'Home',
-              tr:currentChild
-            }])
+        let projects = this.getProjects
+        if(typeof(projects) !== 'undefined'){ // if projects are loaded
+
+          let pid = this.$route.params.pid
+          let project = projects.filter(el => el.key.id == pid) // get project based on route param
+          console.log(project)
+
+          if(project.length == 1){ // if param id matches a single project
+            await this.setCurrentProject(project[0])
+            await this.getProjectChildren()
+            if(this.children.length > 0) { 
+            let currentChild = this.children[0]
+              await this.setBreadcrumbTitles([{
+                key:currentChild.key,
+                title:'Home',
+                tr:currentChild
+              }])
+            }
+            else{
+              this.setBreadcrumbTitles([])
+            }
           }
           else{
-            this.setBreadcrumbTitles([])
+            console.log('invalid url')
+            //Invalid project URL
+            this.$vs.notify({
+                title: 'Error',
+                text: 'Invalid URL. Please navigate to a valid project.',
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            })
           }
         }
-        else{
-          console.log('invalid url')
-          //Invalid project URL
-          this.$vs.notify({
-              title: 'Error',
-              text: 'Invalid URL. Please navigate to a valid project.',
-              color: 'danger',
-              iconPack: 'feather',
-              icon: 'icon-alert-circle'
-          })
+      }
+      catch(err){
+        //Invalid project URL
+        this.$vs.notify({
+            title: 'Error',
+            text: 'Something went wrong! You most likely navigated to an incorrect project link - please try again.',
+            color: 'danger',
+            iconPack: 'feather',
+            icon: 'icon-alert-circle'
+        })
+      }
+    },
+    async loadTaskAndProject(){
+      try{
+        this.$store.commit('tasks/SET_CURRENT_MULTISELECTED',[]) // clear mutliselect
+
+        let projects = this.getProjects
+        if(typeof(projects) !== 'undefined'){ // if projects are loaded
+
+          let pid = this.$route.params.pid
+          let tid = this.$route.params.tid
+
+          let project = projects.filter(el => el.key.id == pid) // get project based on route param
+          console.log(project)
+
+          if(project.length == 1){ // if param id matches a single project
+            await this.setCurrentProject(project[0])
+            await this.setCurrentTaskByURLSafeKey(tid)
+            await this.getCurrentTaskBreadcrumbTitles()
+          }
+          else{
+            console.log('invalid url')
+            //Invalid project URL
+            this.$vs.notify({
+                title: 'Error',
+                text: 'Invalid URL. Please navigate to a valid project.',
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            })
+          }    
+
         }
+      }
+      catch(err){
+        this.$vs.notify({
+            title: 'Error',
+            text: 'Something went wrong! You most likely navigated to an incorrect project link - please try again.',
+            color: 'danger',
+            iconPack: 'feather',
+            icon: 'icon-alert-circle'
+        })
       }
     }
   },
@@ -236,18 +298,7 @@ export default {
 
         // Load specific project and task
         if(loadProject && loadTask){
-          // Set current project to pid by query
-
-
-          //Set current task to tid by query
-
-          
-          //Set current children to children of tid by query
-
-
-          //Set breadcrumb titles via ancerstor query
-          
-
+         this.loadTaskAndProject()
         }
         //Load specific project at root
         else if(loadProject){

@@ -15,6 +15,10 @@ export default{
     }
   },
   SET_CURRENT_SELECTED:(state,value) => state.currentSelected = value,
+  PUSH_CURRENT_MULTISELECTED:(state,value) => state.currentMultiSelected.push(value),
+  REMOVE_CURRENT_MULTISELECTED:(state,value) => state.currentMultiSelected =  state.currentMultiSelected.filter(e => e !== value),
+  SET_CURRENT_MULTISELECTED:(state,value) => state.currentMultiSelected = value,
+
   SET_SIDEBAR_ACTIVE:(state,value) => state.sidebarActive = value,
   SET_SIDEBAR_EDITING:(state,value) => state.sidebarEditing = value,
   SET_ARCHIVED_TASKS:(state,value) => state.archivedTasks = value,

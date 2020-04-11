@@ -23,6 +23,23 @@ export default{
     })
 
     return displayName
+  },
+  getProjectsForNavbarSearch:(state,getters) => { 
+   
+      let projects = getters.getProjects
+      let data = {}
+      data.projects = {}
+      data.projects.key = 'title'
+      data.projects.data = []
+
+      projects.forEach(el => {
+        data.projects.data.push({
+          title:el.title,
+          id:el.key.id
+        })
+      })
+
+      return data
   }
   
 }

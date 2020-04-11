@@ -2,6 +2,8 @@ import navbarSearchAndPinList from '@/layouts/components/navbarSearchAndPinList'
 import themeConfig from '@/../themeConfig.js'
 import colors from '@/../themeConfig.js'
 
+let darkMode = null
+
 const state = {
     isSidebarActive: false,
     breakpoint: null,
@@ -9,7 +11,7 @@ const state = {
     reduceButton: themeConfig.sidebarCollapsed,
     bodyOverlay: false,
     sidebarItemsMin: false,
-    theme: themeConfig.theme || 'light',
+    theme: darkMode || themeConfig.theme || 'light',
     navbarSearchAndPinList: navbarSearchAndPinList,
     AppActiveUser: {
         id: 0,

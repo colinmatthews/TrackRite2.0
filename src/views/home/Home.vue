@@ -1,6 +1,7 @@
 <template>
- 
-  <a href="#"> Test </a>
+ <div >
+  <a href="#" style="position:relative; z-index:0;"> Test </a>
+ </div>
 </template>
 
 <script>

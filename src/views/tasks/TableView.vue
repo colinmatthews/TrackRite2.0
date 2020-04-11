@@ -12,9 +12,9 @@
             
             <br>
             <vs-table
-            v-model="selected"
-            @selected="handleSelected"
             @dblSelection="doubleSelection"
+            @selected="handleSelected"
+            v-model="selected"
             :data="data">
 
               <template slot="thead">
@@ -24,7 +24,10 @@
               </template>
 
               <template slot-scope="{data}">
-                <vs-tr v-for="tr in activeData" :key ="tr.title" :data="tr" class="border_bottom">
+                <vs-tr v-for="tr in activeData" :key ="tr.title" :data="tr" class="border_bottom" >
+                  <vs-td>
+                     <vs-checkbox v-model="currentMultiSelected" :vs-value="tr" @click="checkboxSelected = true"></vs-checkbox>
+                  </vs-td>
                   <vs-td>
                     <span v-if="tr.title != null">{{tr.title}}</span>
                     <span v-else><i>Empty</i> </span>
@@ -60,6 +63,7 @@
     </div>
     <div class="layer2">
       <Sidebar :task="selected" :active="active" v-on:closeSidebar="handleCloseSidebar"/>
+      <MultiSelectControls />
     </div>
     <Controls id="icon-controls" :showControls="showControls"/>
   </div> 
@@ -69,6 +73,7 @@
 <script>
 import {mapActions,mapState, mapGetters} from 'vuex'
 import Sidebar from './Sidebar'
+import MultiSelectControls from './MutliselectControls'
 import Controls from './Controls.vue'
 import TaskBreadcrumb from './VuesaxBreadcrumb'
 import moment from 'moment'
@@ -76,17 +81,35 @@ export default {
   components:{
     Sidebar,
     Controls,
-    TaskBreadcrumb
+    TaskBreadcrumb,
+    MultiSelectControls
   },
   data: () => ({
-    headers:['Title','Start Date','End Date', 'Status', 'Owner', 'Actions'],
+    headers:['','Title','Start Date','End Date', 'Status', 'Owner', 'Actions'],
     active:false,
     allowActive:true,
+    checkboxSelected:false
   }),
 
   watch:{
     selected(){
       this.setCurrentSelected(this.selected)
+    },
+    children:{
+      deep:true,
+      handler(){
+        let pid = this.$route.params.pid
+        let tid = this.currentTask.urlSafeKey
+
+        console.log(tid)
+
+        if(typeof(tid) == 'undefined'){
+          this.$router.push('/tasks/' + pid)
+        }
+        else{
+          this.$router.push('/tasks/' + pid + "/" + tid)
+        }
+      }
     }
   },
   props:{
@@ -98,6 +121,7 @@ export default {
       currentProject: state => state.currentProject,
       breadcrumbTitles: state => state.breadcrumbTitles,
       children: state => state.children,
+      currentTask: state => state.currentTask
     }),
 
     selected:{
@@ -108,11 +132,21 @@ export default {
         this.setCurrentSelected(value)
       }
     },
+
+    currentMultiSelected:{
+      get(){
+        return this.$store.state.tasks.currentMultiSelected
+      },
+      set(value){
+        this.setCurrentMultiSelected(value)
+      }
+    },
     activeData(){
       return this.data.filter(el => el.archive == false)
     }
 
   },
+  
   methods:{
     ...mapActions('tasks',[
       'getTaskChildren',
@@ -128,6 +162,8 @@ export default {
     async changeTask(tr){
       //Prevents selection sidebar from opening
       this.allowActive = false
+
+      this.$store.commit('SET_CURRENT_MULTISELECTED',[]) // uncheck any rows that have been selected for mulitselect
       
       // Update breadcrumb
       let key = tr.key
@@ -143,17 +179,18 @@ export default {
       await this.setCurrentTask(tr)
 
       // Fetch new children and update table data
-      await this.getTaskChildren(key)
+      await this.getTaskChildren()
 
       this.allowActive = true
     
     },
-    handleBackEvent(){
+    async handleBackEvent(){
       if(this.breadcrumbTitles.length > 1){
         this.popBreadcrumbTitles()
       }
 
-      this.getPreviousTask()
+      await this.getPreviousTask()
+      
     },
     addCustomerHeaders(){
       if('custom_columns' in this.data[0] && this.data[0].custom_columns.length >= 1){ 
@@ -163,17 +200,15 @@ export default {
       }
     },
     handleSelected(tr){
-      if(this.allowActive){
-        this.setSidebarActive(true)
+      if(this.allowActive){ // prevents sidebar from opening on "Open" click
+        if( ! this.checkboxSelected){ // prevents sidebar from opening on checkbox click
+          this.setSidebarActive(true)
+        }       
       }
-      
     },
-    doubleSelection(tr){
-       console.log(tr)
-      this.$vs.notify({
-        title:`Double clicked ${tr.title}`,
-        color: 'success'
-      })
+    setCurrentMultiSelected(value){
+      this.$store.commit('tasks/SET_CURRENT_MULTISELECTED',value)
+      this.checkboxSelected = false // allows sidebar to open once state is commited
     },
     handleCloseSidebar(){
       this.active = false
@@ -219,6 +254,9 @@ a:visited {
 }
 .inline{
   float: right;
+}
+#table{
+  padding-bottom:50px;
 }
 
 

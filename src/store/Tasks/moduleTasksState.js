@@ -5,6 +5,7 @@ export default{
     parent:{},
     allTasks:[],
     currentSelected:{},
+    currentMultiSelected:[],
     sidebarActive:false,
     sidebarEditing:false,
     breadcrumbTitles:[],

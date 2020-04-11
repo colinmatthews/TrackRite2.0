@@ -39,7 +39,7 @@
         class="auto-suggest__suggestion-group-container">
 
           <!-- Group Header -->
-          <p class="auto-suggest__suggestion-group-title pt-3 pb-1 px-4" v-if="!hideGroupTitle">
+          <p class="a pt-3 pb-1 px-4" v-if="!hideGroupTitle">
             <slot name="group" :group_name="grp_name"></slot>
           </p>
 
@@ -48,14 +48,14 @@
             <li
               v-for="(suggestion, index) in suggestion_list"
               :key="index"
-              class="auto-suggest__suggestion-group__suggestion py-3 px-4 cursor-pointer"
+              class="py-3 px-4 cursor-pointer"
               :class="{'vx-auto-suggest__current-selected': currentSelected == `${grp_index}.${index}`}"
               @mouseenter="currentSelected = `${grp_index}.${index}`"
               @click="suggestionSelected">
               <slot :name="grp_name" :suggestion="suggestion"></slot>
             </li>
 
-            <li class="auto-suggest__suggestion-group__suggestion py-3 px-4 no-results" v-if="!suggestion_list.length && searchQuery">
+            <li class="py-3 px-4 no-results" v-if="!suggestion_list.length && searchQuery">
               <slot name="noResult" :group_name="grp_name">
                   <p>No Results Found.</p>
               </slot>
@@ -258,5 +258,12 @@ export default{
 </script>
 
 <style lang="scss">
-
+.auto-suggest__suggestion-group-container{
+  position: relative;
+  z-index: 500000;
+}
+.auto-suggest__suggestion-group__suggestion{
+  position: relative;
+  z-index: 500000;
+}
 </style>

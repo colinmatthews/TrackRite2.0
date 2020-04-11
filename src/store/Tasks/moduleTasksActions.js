@@ -1,6 +1,7 @@
+import vue from 'vue'
 export default{
   async initializeAllTasks({commit,state,rootState}){
-    let id = state.currentProject.key
+    let key = state.currentProject.key
     await dispatch('auth/setToken',{root:true})
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/all/"
@@ -13,24 +14,12 @@ export default{
   },
 
   async getTaskChildren({commit,state,rootState,dispatch}){
-    let id = state.currentTask.key
+    let key = state.currentTask.key
     await dispatch('auth/setToken',{root:true})
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/children/"
-    await this.$http.post(url, id, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+    await this.$http.post(url, key, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
       commit('SET_CURRENT_CHILDREN',res.data)
-    })
-    .catch(err => {
-      console.log(err)
-    })
-  },
-
-  async getTaskById({commit,state,rootState,dispatch},id){
-    await dispatch('auth/setToken',{root:true})
-    let token = rootState.auth.firebaseToken
-    let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/?key=" + id 
-    await this.$http.post(url, id, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
-      commit('SET_FETCHED_TASK',res.data)
     })
     .catch(err => {
       console.log(err)
@@ -39,11 +28,23 @@ export default{
 
   async getProjectChildren({commit,state,rootState,dispatch}){
     await dispatch('auth/setToken',{root:true})
-    let id = state.currentProject.key
+    let key = state.currentProject.key
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/children" 
-    await this.$http.post(url, id, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+    await this.$http.post(url, key, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
       commit('SET_CURRENT_CHILDREN',res.data)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  },
+
+  async setCurrentTaskByKey({commit,dispatch,rootState},key){
+    await dispatch('auth/setToken',{root:true})
+    let token = rootState.auth.firebaseToken
+    let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/key" 
+    await this.$http.post(url, key, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+      commit('SET_CURRENT_TASK',res.data)
     })
     .catch(err => {
       console.log(err)
@@ -57,15 +58,45 @@ export default{
     await dispatch('auth/setToken',{root:true})
     if(state.breadcrumbTitles.length != 1 ){
       let parent = state.currentTask.key.parent
-      console.log(parent)
+    
       commit('SET_CURRENT_TASK_KEY',parent)
-      dispatch("getTaskChildren")
+      await dispatch('setCurrentTaskByKey',state.currentTask.key)
+      await dispatch("getTaskChildren")
+      
+      
     }
     else{
       commit('SET_CURRENT_TASK',{})
       dispatch("getProjectChildren")
     }
    
+  },
+  async archiveMultiSelected({state,commit,rootState,dispatch}){
+    let tasks = JSON.parse ( JSON.stringify (state.currentMultiSelected))
+    if(tasks.length > 0){
+
+      tasks.forEach(el => {
+        el.archive = true
+      })
+
+      let token = rootState.auth.firebaseToken
+      let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/batch"
+
+      await this.$http.put(url, tasks, {headers: {"Authorization" : "Bearer " + token}})
+      if(Object.keys(state.currentTask).length !== 0){  // if currentTask is empty (at root of project)
+        console.log('here')
+        dispatch('getTaskChildren')
+        commit('SET_CURRENT_MULTISELECTED',[])
+
+      }
+      else{
+        dispatch('getProjectChildren')
+        commit('SET_CURRENT_MULTISELECTED',[])
+      }
+        
+    } 
+    
+
   },
   async updateCurrentSelected({state,commit,rootState,dispatch}){
     await dispatch('auth/setToken',{root:true})
@@ -198,10 +229,10 @@ export default{
 
   async getArchivedTasks({commit,state,rootState,dispatch}){
     await dispatch('auth/setToken',{root:true})
-    let id = state.currentProject.key
+    let key = state.currentProject.key
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/archived" 
-    await this.$http.post(url, id, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+    await this.$http.post(url, key, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
       commit('SET_ARCHIVED_TASKS',res.data)
     })
     .catch(err => {
@@ -240,7 +271,6 @@ export default{
         
     }
   },
-
   async deleteTasks({commit,state,dispatch,rootState},obj){
     console.log("Selected delete")
     console.log(obj)
@@ -255,6 +285,44 @@ export default{
       })
        
     }
+  },
+
+  async setCurrentTaskByURLSafeKey({commit,state,dispatch,rootState},tid){
+    await dispatch('auth/setToken',{root:true})
+    if(tid != null ){
+      let token = rootState.auth.firebaseToken
+      let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/urlSafeKey"
+      
+      await this.$http.post(url, {tid}, {headers: {"Authorization" : "Bearer " + token}}).then(async res => {
+        console.log(res)
+        commit('SET_CURRENT_TASK',res.data)
+      })
+      .then(() => {
+        dispatch('getTaskChildren')
+      })
+      .catch(err => {
+        vue.$vs.notify({
+          title: 'Error',
+          text: 'Something went wrong! You most likely navigated to an incorrect task link.',
+          color: 'danger',
+          iconPack: 'feather',
+          icon: 'icon-alert-circle'
+       })
+      })
+    }
+
+  },
+  async getCurrentTaskBreadcrumbTitles({commit,state,dispatch,rootState}){
+    let key = state.currentTask.key
+    await dispatch('auth/setToken',{root:true})
+    let token = rootState.auth.firebaseToken
+    let url = process.env.VUE_APP_FUNCTIONS_URL + "/tasks/breadcrumbsByKey/"
+    await this.$http.post(url, key, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+      commit('SET_BREADCRUMB_TITLES',res.data)
+    })
+    .catch(err => {
+      console.log(err)
+    })
   },
 
   async setCurrentParent({commit}, obj){
