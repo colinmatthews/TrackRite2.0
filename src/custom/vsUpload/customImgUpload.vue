@@ -1,7 +1,7 @@
 <template>
   <div class="con-upload">
     <view-upload
-      v-if="viewActive"
+      v-show="viewActive"
       :src="viewSrc" />
 
 
@@ -25,24 +25,6 @@
             clear
           </i>
         </button>
-        <button
-          v-if="showUploadButton"
-          :class="{
-            'on-progress':img.percent,
-            'ready-progress':img.percent >= 100
-          }"
-          :style="{
-            height: `${img.percent}%`
-          }"
-          class="btn-upload-file"
-          @click="upload(index)">
-          <i
-            translate="no"
-            class="material-icons notranslate">
-            {{ img.percent >= 100?img.error?'report_problem':'cloud_done':'cloud_upload' }}
-          </i>
-          <span>{{ img.percent }} %</span>
-        </button>
         <img
           v-if="img.src"
           :style="{
@@ -62,7 +44,7 @@
             description
           </i>
           <span>
-            {{ img.name }}
+            Please upload a valid image!
           </span>
         </h4>
       </div>
@@ -70,6 +52,7 @@
 
 
       <div
+        v-if="imgSrc == null"
         :class="{
           'on-progress-all-upload':percent != 0,
           'is-ready-all-upload':percent >= 100,
@@ -78,7 +61,6 @@
         class="con-input-upload">
         <input
           ref="fileInput"
-          
           v-bind="$attrs"
           :disabled="$attrs.disabled || limit?(srcs.length - itemRemove.length) >= Number(limit):false"
           type="file"
@@ -125,7 +107,7 @@
         type:String
       },
       text:{
-        default:'Upload File',
+        default:'Upload Image',
         type:String
       },
       textMax:{
@@ -228,6 +210,7 @@
         }
       },
       removeFile(index){
+        this.imgSrc = null
         this.itemRemove.push(index)
         this.$emit('on-delete', this.filesx[index])
         setTimeout(()=>{
@@ -310,87 +293,11 @@
         input.type = 'text'
         input.type = 'file'
 
-        if (this.automatic) {
-          this.upload('all')
-        }
+        
       },
       setImgSrc(img){
         this.imgSrc = img
-      },
-      upload(index) {
-        const formData = new FormData();
-        let postFiles = Array.prototype.slice.call(this.filesx);
-        if(typeof index == 'number'){
-          postFiles = [postFiles[index]]
-        } else if (index == 'all'){
-          postFiles = postFiles.filter((item)=>{
-            return !item.hasOwnProperty('remove')
-          })
-        }
-
-        const data = this.data || {};
-        for (var key in data) {
-          formData.append(key, data[key]);
-        }
-
-        if(this.singleUpload) {
-          postFiles.forEach((filex)=>{
-            const formData = new FormData();
-            for (var key in data) {
-              formData.append(key, data[key]);
-            }
-            formData.append(this.fileName, filex, filex.name)
-
-            this.uploadx(index, formData)
-          })
-        } else {
-          postFiles.forEach((filex)=>{
-            formData.append(this.fileName, filex, filex.name)
-          })
-          this.uploadx(index, formData)
-        }
-      },
-            uploadx(index, formData){
-        let self = this
-        const xhr = new XMLHttpRequest();
-        xhr.onerror = function error(e) {
-          self.$emit('on-error',e)
-          if(typeof index == 'number'){
-            self.srcs[index].error = true
-          }
-        };
-        xhr.onload = function onload(e) {
-          if (xhr.status < 200 || xhr.status >= 300) {
-            self.$emit('on-error',e)
-            if(typeof index == 'number'){
-              self.srcs[index].error = true
-            }
-          } else {
-            self.$emit('on-success',e)
-          }
-        }
-        if (xhr.upload) {
-          xhr.upload.onprogress = function progress(e) {
-            if (e.total > 0) {
-              let percent = e.loaded / e.total * 100;
-              if(typeof index == 'number'){
-                self.srcs[index].percent = Math.trunc(percent)
-              } else {
-                self.percent = Math.trunc(percent)
-              }
-            }
-          };
-        }
-        xhr.withCredentials = true;
-        xhr.open('POST', this.action, true);
-        const headers = this.headers || {};
-        for (let head in headers) {
-          if (headers.hasOwnProperty(head) && headers[head] !== null) {
-            xhr.setRequestHeader(head, headers[head]);
-          }
-        }
-        xhr.send(formData)
-      },
+      }
 
     }
   }

@@ -482,7 +482,12 @@ export default {
         commit('SPLICE_FAVORITE_PROJECTS',obj)
     },
     async pushFavoriteProject({dispatch},obj){
-        await dispatch('commitPushFavoriteProject',obj)
+        let copy = {
+            key:obj.key,
+            title:obj.title
+        }
+        
+        await dispatch('commitPushFavoriteProject',copy)
         await dispatch('updateUser')
     
     },

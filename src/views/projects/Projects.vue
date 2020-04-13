@@ -1,6 +1,6 @@
 <template>
   <div class="projects-page">
-
+    <!-- Projects grid -->
     <span class="title">Projects</span>
 
     <div class="projects-display">
@@ -28,7 +28,7 @@
               <img
                 class="image-preview"
                 @click="$router.push('/tasks/' + project.key.id)"
-                src="@/assets/images/sample.png"
+                :src="project.thumbnail"
               />
             </div>
 
@@ -42,7 +42,9 @@
       </vs-row>
     </div>
 
+    <!-- End Porjects Grid -->
 
+    <!-- Project Details Popup -->
     <vs-popup title="Project Details" v-if="selectedProject" :active.sync="popupActive">
       <template lang="html">
         <vs-tabs>
@@ -114,7 +116,10 @@
         </vs-tabs>
       </template>
     </vs-popup>
+
+    <!-- End Project Details Popup -->
     
+    <!-- Project Add Button -->
     <transition name="fade" >
     <div class="icon-controls" @click="$router.push('/projects/new')" v-if="showControls">
       <vx-tooltip text="Add new project" position="left">
@@ -122,6 +127,7 @@
       </vx-tooltip>
     </div>
     </transition>
+    <!-- End Project Add Button -->
 
   </div>
 </template>

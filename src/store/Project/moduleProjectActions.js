@@ -60,13 +60,13 @@ export default{
     })
   },
 
-  async createProject({commit,state,dispatch}, obj){
+  async createProject({commit,state,dispatch,rootState}, obj){
     let project = obj
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/"
     let token = rootState.auth.firebaseToken
-    await this.$http.post(url, project, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
-      dispatch('initializePublicProjectContents')
-      dispatch('initializePrivateProjectContents')
+    await this.$http.post(url, project, {headers: {"Authorization" : "Bearer " + token}}).then(async res => {
+      await dispatch('initializePublicProjectContents')
+      await dispatch('initializePrivateProjectContents')
     })
     .catch(err => {
       console.log(err)

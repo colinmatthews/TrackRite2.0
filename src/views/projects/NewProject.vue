@@ -3,7 +3,7 @@
 
   <span id="title">Projects</span>
 
-  <vx-card class="card-container">
+  <vx-card class="card-container" :class="{extended:showFileImport}">
     <transition name="fade">
       <vs-button type="border" style="margin: 10px" @click="$router.push('/projects')" icon="arrow_back">Close</vs-button>
     </transition>
@@ -80,7 +80,7 @@
 
                 
               </div>
-             <vs-button class="project-center" @click="showFileImport = true; showNewProjectForm = true">Import</vs-button>
+             <vs-button class="project-center" @click="alertNewFeature()">Import</vs-button>
           </vs-col>
 
           <vs-col vs-w="4">
@@ -119,31 +119,85 @@
         <vs-row class="new-form">
           <vs-col vs-w="6">
             <vs-row>
-              <vs-col vs-w="12">
+              <vs-col vs-w="12" class="spacer">
                 <vs-input class="w-full" icon-pack="feather" icon="icon-type" icon-no-border label="Title" v-model="newTitle" />
               </vs-col>
           
-              <vs-col vs-w="12">
-                <vs-input type="email" class="w-full" icon-pack="feather" icon="icon-type" icon-no-border label="Description" v-model="newDescription" />
+              <vs-col vs-w="12" class="spacer">
+                <vs-input  class="w-full" icon-pack="feather" icon="icon-type" icon-no-border label="Description" v-model="newDescription" />
               </vs-col>
-          
-              <vs-col vs-w="12">
-                <vs-input class="w-full" icon-pack="feather" icon="icon-lock" icon-no-border label="Privacy" />
+    
+              <vs-col vs-w="12" class="spacer">
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Owner</label>
+                <vue-auto-suggest
+                    @selected="updateOwner"
+                    :placeholder="newOwner.displayName"
+                    :data="autocompleteData"
+                    :filter-by-query="true">
+
+                      <template v-slot:users="{ suggestion }">
+                        <div class="flex items-end leading-none py-1">
+                          <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
+                          <span class="mt-1">{{ suggestion.displayName }}</span>
+                        </div>
+                      </template>
+                   </vue-auto-suggest>
+              </vs-col>
+
+              <vs-col vs-w="12" class="spacer">
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Start Date</label>
+                <vc-date-picker
+                  popover-visibility="click" 
+                  @input="updateStartDate"
+                  :value="newStartDate" 
+                  :popover="{visibility: 'click' }"
+                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+                </vc-date-picker>
+              </vs-col>
+
+              <vs-col vs-w="12" class="spacer">
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">End Date</label>
+                <vc-date-picker
+                  popover-visibility="click" 
+                  @input="updateEndDate"
+                  :value="newEndDate"
+                  :min-date='newStartDate'   
+                  :popover="{visibility: 'click' }"
+                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+                </vc-date-picker>
               </vs-col>
             
-            
-              <vs-col vs-w="12">
-                <vs-input type="password" class="w-full" icon-pack="feather" icon="icon-user" icon-no-border label="Owner" />
+
+              <vs-col vs-w="12" class="spacer">
+                
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Privacy</label>
+                <vs-row class="spacer field-border" >
+                  <vs-col vs-w="0">
+                    <vs-icon icon="lock"></vs-icon>
+                  </vs-col> 
+                  <vs-col vs-w="2">
+                    <vs-switch v-model="newPrivate" />
+                  </vs-col>
+                  <vs-col vs-w="6">
+                    <label><b>{{privacyType}}</b>{{privacyText}} </label>
+                  </vs-col>
+                </vs-row>
+              </vs-col>
+
+              <vs-col vs-w="12" class="spacer">
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Thumbnail</label>
+                <CustomImgUpload automatic @imgSrc="setPreviewSrc"/>
+              </vs-col>
+
+              <vs-col vs-w="12" class="spacer" v-if="showFileImport">
+                <br>
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Project File (MS Excel or Project)</label>
+                <CustomFileUpload automatic />
               </vs-col>
           
-          
-              <vs-col vs-w="12">
-                <CustomUpload automatic @on-success="successUpload" @imgSrc="setPreviewSrc"/>
-              </vs-col>
-          
-              <vs-col vs-w="12">
-                <vs-button class="mr-3 mb-2">Submit</vs-button>
-                <vs-button color="warning" type="border" class="mb-2" >Cancel</vs-button>
+              <vs-col vs-w="12" class="new-project-buttons">
+                <vs-button class="mr-3 mb-2" @click="submitNewProject">Create</vs-button>
+                <vs-button color="warning" type="border" class="mb-2" @click="showNewProjectForm = false ; showFileImport = false" >Cancel</vs-button>
               </vs-col>
             </vs-row>
           </vs-col>
@@ -178,9 +232,12 @@
 </template>
 
 <script>
+import {mapState,mapActions} from 'vuex'
 import { FormWizard, TabContent } from "vue-form-wizard";
 import "vue-form-wizard/dist/vue-form-wizard.min.css";
-import CustomUpload from '../../custom/vsUpload/customUpload'
+import CustomImgUpload from '../../custom/vsUpload/customImgUpload'
+import CustomFileUpload from '../../custom/vsUpload/customFileUpload'
+import VueAutoSuggest from '../../components/vx-auto-suggest/VxAutoSuggest.vue'
 export default {
   data: () => ({
     newPrivate:false,
@@ -189,34 +246,83 @@ export default {
     newTitle:"",
     newPrivate:false,
     newDescription:"",
-    newPicture:null,
-    newOwner:null,
+    newSrc:null,
+    newStartDate:null,
+    newEndDate:null,
+    newOwner:{
+      displayName:"Search a coworker..."
+    }
   }),
   components:{
     FormWizard,
     TabContent,
-    CustomUpload
+    CustomImgUpload,
+    CustomFileUpload,
+    VueAutoSuggest
+  },
+  computed:{
+    ...mapState('auth', {
+      activeUsers: state => state.activeUsers
+    }),
+
+    privacyText(){
+      if(this.newPrivate){
+        return "(Only people you invite)"
+      }
+      return "(Visible to everyone in your organization)"
+    },
+
+    privacyType(){
+      if(this.newPrivate){
+        return "Private "
+      }
+      return "Public "
+    },
+    
+    autocompleteData(){
+      let users = this.activeUsers
+      let data = {}
+      data.users = {}
+      data.users.key = 'displayName'
+      data.users.data = []
+
+      users.forEach(el => {
+        data.users.data.push({
+          displayName:el.displayName,
+          uid:el.uid
+        })
+      })
+      return data
+    },
   },
   methods:{
+    ...mapActions('project',[
+      'createProject'
+    ]),
+
     submitNewProject() {
       this.$validator.validateAll().then(result => {
         if (result) {
+          let users = null
+          if(this.newPrivate){
+            users = [this.newOwner.uid]
+          }
+
+        let project = {
+          title:this.newTitle,
+          description:this.newDescription,
+          end_date:this.newEndDate,
+          start_date:this.newStartDate,
+          private:this.newPrivate,
+          thumbnail:this.newSrc,
+          owners:[this.newOwner.uid],
+          users:users
+        }
           
-          // add POST action here
-
-          
-          this.$vs.notify({
-            color:'success',
-            title:'New Project',
-            text:'The project was successfully added!'
-          })
-
-          this.$router.push('/projects')
-
+          this.createProject(project)
+          .then(this.$router.push('/projects'))
         } 
         else{
-
-          this.modal = false;
           this.$vs.notify({
             color:'warning',
             title:'Something Went Wrong',
@@ -225,16 +331,10 @@ export default {
         }
       });
     },
-    successUpload(base64){
-      this.$vs.notify({
-        color:"success",
-        title:'Under Development',
-        text:'That feature isnt done yet. Stay tuned!'
-      })
-    },
     setPreviewSrc(src){
       console.log(src)
       document.querySelector('#image-preview').src = src
+      this.newSrc = src
     },
      alertNewFeature(){
       //this.removeProject(this.deleteID)
@@ -243,6 +343,19 @@ export default {
         title:'Under Development',
         text:'That feature isnt done yet. Stay tuned!'
       })
+    },
+    updateOwner(owner){
+      console.log(owner.users)
+      this.newOwner = owner.users
+    },
+    updateStartDate(date){
+      this.newStartDate = date
+    },
+    updateEndDate(date){
+      this.newEndDate = date
+    },
+    moment (date) {
+       return moment(date).format('MMMM Do YYYY')
     },
   }
 
@@ -258,6 +371,7 @@ export default {
 }
 
 .new-project-container{
+  height: 100%;
   padding-top:20px;
 }
 
@@ -279,8 +393,12 @@ export default {
   width: 50%;
   margin-top:20px;
 }
+
 .card-container{
-  height: 75vh;
+  height: 850px;
+}
+.extended{
+   height: 1100px;
 }
 
 .vl{
@@ -312,7 +430,7 @@ export default {
 
 .card-preview{
   border: 1px dashed #a7a7a7;
-  height: 80%;
+  height: 50vh;
   text-align: center;
 }
 
@@ -320,5 +438,18 @@ export default {
   font-size: 14px!Important;
 }
 
+.field-border{
+  border:1px solid rgba(0, 0, 0, 0.2); 
+  border-radius:5px; 
+  padding-bottom:10px;
+  padding-top:10px;
+}
 
+.new-project-buttons{ 
+  padding-top:25px;
+}
+
+.spacer{
+  padding-top:10px;
+}
 </style>
