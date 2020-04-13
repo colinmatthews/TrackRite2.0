@@ -1,39 +1,39 @@
 <template>
-  <div id="projects-page">
+  <div class="projects-page">
 
-    <span id="title">Projects</span>
+    <span class="title">Projects</span>
 
-    <div id="projects-display">
-      <vs-row id="r2">
+    <div class="projects-display">
+      <vs-row class="r2">
         <vs-col
-          id="u1"
+          class="u1"
           type="flex"
           vs-justify="center"
           vs-align="center"
           :vs-order="-1"
-          vs-w="3"
+          vs-w="4"
           v-for="(project,index) in getProjects"
           :key="index"
           style="position: relative!important; z-index: -10!important;"
         >
-          <vs-card fixedHeight id="card-project">
-            <div id="favorite-icon" :style="checkFavorite(project)">
+          <vs-card fixedHeight class="card-project">
+            <div class="favorite-icon" :style="checkFavorite(project)">
               <vs-button @click="setFavorite(project)"  icon="star" color="warning" v-if="checkFavorite(project)"></vs-button> 
               <vs-button @click="setFavorite(project)"  icon="star" type="border" v-else></vs-button> 
             </div>
-            <div id="delete-icon" @click="deleteConfirm(project.key.id)">
+            <div class="delete-icon" @click="deleteConfirm(project.key.id)">
               <i class="material-icons">clear</i>
             </div>
             <div class="image">
               <img
-                id="image-preview"
+                class="image-preview"
                 @click="$router.push('/tasks/' + project.key.id)"
                 src="@/assets/images/sample.png"
               />
             </div>
 
-            <h2 id="card-title">{{ project.title}}</h2>
-            <small id="card-description">{{project.description}}</small>
+            <h2 class="card-title">{{ project.title}}</h2>
+            <small>{{project.description}}</small>
             <div @click="handleProjectPopup(project)">
               <vs-icon icon-pack="feather" icon="icon-more-vertical" class="projectDetailsButton" > </vs-icon> 
             </div>
@@ -116,7 +116,7 @@
     </vs-popup>
     
     <transition name="fade" >
-    <div id="icon-controls" @click="$router.push('/projects/new')" v-if="showControls">
+    <div class="icon-controls" @click="$router.push('/projects/new')" v-if="showControls">
       <vx-tooltip text="Add new project" position="left">
         <i class="material-icons add-new-project">add</i>
       </vx-tooltip>
@@ -357,7 +357,7 @@ export default {
 </script>
 
 <style scoped>
-#card-project {
+.card-project {
   z-index: -1;
 }
 
@@ -366,57 +366,57 @@ export default {
   margin-bottom: 50px;
 }
 
-#switch > * {
+.switch > * {
   margin-top: 20px;
 }
 
-#u1 {
+.u1 {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 
-#r {
+.r {
   text-align: center;
 }
 
-#r2 {
+.r2 {
   margin-top: 30px;
   margin-bottom: 30px;
   position: relative;
   z-index: -1;
 }
 
-#title {
+.title {
   font-family: "Segoe UI", sans-serif;
   font-size: 30px;
   font-weight: bold;
   color: #707070;
 }
 
-#projects {
+.projects {
   margin-top: 30px;
 }
 
-#image-preview {
-  width: 50%;
-  height: 30%;
+.image-preview {
+  width: 15vw;
+  height: 30vh;
   cursor: pointer;
   margin-bottom: 10px;
   margin-left: auto;
   margin-right: auto;
 }
 
-#card-title {
+.card-title {
   font-size: 14px!Important;
 }
 
-#projects-display {
+.projects-display {
   text-align: center;
   position: relative;
   z-index: 999;
 }
 
-#icon-controls {
+.icon-controls {
   position: absolute;
   right: 20px;
   user-select: none;
@@ -426,14 +426,14 @@ export default {
 .wizard-header {
   padding: 0px!Important;
 }
-#add {
+.add {
   font-size: 20px;
   font-family: "Segoe UI", sans-serif;
   vertical-align: middle;
   margin: 10px;
 }
 
-#content {
+.content {
   margin: 20px;
 }
 
@@ -457,7 +457,7 @@ export default {
   cursor: pointer;
 }
 
-#delete-icon {
+.delete-icon {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -465,7 +465,7 @@ export default {
   cursor: pointer;
 }
 
-#favorite-icon {
+.favorite-icon {
   position: absolute;
   top: 6px;
   left: 6px;
@@ -479,7 +479,7 @@ export default {
   bottom: 0px;
 }
 
-#delete-icon > i {
+.delete-icon > i {
   font-size: 20px;
 }
 

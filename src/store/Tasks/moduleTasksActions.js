@@ -51,6 +51,10 @@ export default{
     })
   },
 
+  async resetCurrentMultiSelected({commit}){
+    commit('SET_CURRENT_MULTISELECTED',[])
+  },
+
   async getPreviousTask({dispatch, state, commit}){
     commit('SET_SIDEBAR_ACTIVE',false)
     commit('SET_SIDEBAR_EDITING',false)

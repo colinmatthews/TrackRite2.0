@@ -6,22 +6,22 @@
        <vx-card v-if="showControls" class="multiselect-parent">
          <vs-row>
            <vs-col vs-w="3">
-             <a href="#" @click="updateArchive()" class="flex items-center text-sm">
+             <span href="#" @click="updateArchive()" class="flex items-center text-sm mouse-click">
               <feather-icon icon="ArchiveIcon" svgClasses="w-5 h-5" />
               <span class="ml-2">Archive</span>
-            </a>
+            </span>
            </vs-col>
            <vs-col vs-w="3">
-             <a href="#" @click="alertNewFeature()" class="flex items-center text-sm">
+             <span @click="alertNewFeature()" class="flex items-center text-sm mouse-click">
               <feather-icon icon="CornerRightDownIcon" svgClasses="w-5 h-5" />
               <span class="ml-2">Shift Down</span>
-            </a>
+            </span>
            </vs-col>
            <vs-col vs-w="3">
-             <a href="#" @click="alertNewFeature()" class="flex items-center text-sm">
+             <span href="#" @click="alertNewFeature()" class="flex items-center text-sm mouse-click">
               <feather-icon icon="CornerLeftUpIcon" svgClasses="w-5 h-5" />
               <span class="ml-2">Shift Up</span>
-            </a>
+            </span>
            </vs-col>
            <vs-col vs-w="3">
 
@@ -106,5 +106,9 @@ export default {
   .multiselect-parent{
     width: 80vw;;
   }
+}
+
+.mouse-click{
+  cursor: pointer;
 }
 </style>

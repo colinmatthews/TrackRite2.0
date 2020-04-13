@@ -156,14 +156,15 @@ export default {
       'setCurrentChildren',
       'getPreviousTask',
       'setCurrentSelected',
-      'setSidebarActive'
+      'setSidebarActive',
+      'resetCurrentMultiSelected'
     ]),
 
     async changeTask(tr){
       //Prevents selection sidebar from opening
       this.allowActive = false
 
-      this.$store.commit('SET_CURRENT_MULTISELECTED',[]) // uncheck any rows that have been selected for mulitselect
+      this.resetCurrentMultiSelected() // uncheck any rows that have been selected for mulitselect
       
       // Update breadcrumb
       let key = tr.key
@@ -184,7 +185,10 @@ export default {
       this.allowActive = true
     
     },
+
     async handleBackEvent(){
+      this.resetCurrentMultiSelected()
+
       if(this.breadcrumbTitles.length > 1){
         this.popBreadcrumbTitles()
       }

@@ -90,6 +90,10 @@
                 <td class="font-semibold">Email</td>
                 <td>{{ user_data.email }}</td>
               </tr>
+              <tr>
+                <td class="font-semibold">Dark Mode</td>
+                <vs-checkbox v-model="checkbox"></vs-checkbox>
+              </tr>
             </table>
           </div>
           <!-- /Information - Col 1 -->
@@ -115,7 +119,7 @@
 <script>
 import firebase from 'firebase/app'
 import 'firebase/auth'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   data() {
@@ -123,12 +127,34 @@ export default {
       user_data: null,
       can_edit:false,
       editing:false,
-      popupActive:false
+      popupActive:false,
+      checkbox:false
+    }
+  },
+  computed:{
+    ...mapState({
+      theme: state => state.theme
+    })
+  },
+  watch:{
+    checkbox(){
+      if(this.checkbox){
+        this.updateTheme('dark')
+      }
+      else{
+        this.updateTheme('semi-dark')
+      }
+    }
+  },
+  created(){
+    if(this.theme == 'dark'){
+      this.checkbox = true
     }
   },
   methods: {
     ...mapActions([
-      'updateUserInfo'
+      'updateUserInfo',
+      'updateTheme'
     ]),
     editAccount() {
      

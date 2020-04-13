@@ -7,6 +7,8 @@
   Author URL: http://www.themeforest.net/user/pixinvent
 ==========================================================================================*/
 
+import state from "./state";
+
 
 const mutations = {
 
