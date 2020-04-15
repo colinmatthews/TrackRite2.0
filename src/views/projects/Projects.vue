@@ -42,26 +42,61 @@
       </vs-row>
     </div>
 
-    <!-- End Porjects Grid -->
+    <!-- End Projects Grid -->
 
     <!-- Project Details Popup -->
     <vs-popup title="Project Details" v-if="selectedProject" :active.sync="popupActive">
       <template lang="html">
         <vs-tabs>
+          <!-- Details Tab -->
           <vs-tab label="Details" icon-pack="feather" icon="icon-home">
 
             <label class="vs-select--label input-select-label-primary"><b>Title</b></label>
-            <vs-textarea class="my-3" :value="selectedProject.title" @input="setProjectTitle" ></vs-textarea>
+            <vs-input class="my-3 w-full" :value="selectedProject.title" @input="setProjectTitle" ></vs-input>
 
             <label class="vs-select--label input-select-label-primary"><b>Description</b></label>
             <vs-textarea class="my-3" :value="selectedProject.description" @input="setProjectDescription" ></vs-textarea>
+
+           <label class="vs-select--label input-select-label-primary"><b>Start Date</b></label>
+            <vc-date-picker
+              popover-visibility="click" 
+              @input="setStartDate"
+              :value="defaultDatepicker(selectedProject.start_date)" 
+              :popover="{visibility: 'click' }"
+              :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+            </vc-date-picker>
            
-            
-              <vs-table :data="selectedProject.owners"> 
-                 <template slot="header">
-                  <label class="vs-select--label input-select-label-primary"><b>Owners</b></label>
-                 </template>
-                <template slot="thead" >
+          <div class="spacer">
+          <label class="vs-select--label input-select-label-primary"><b>End Date</b></label>
+            <vc-date-picker
+              popover-visibility="click" 
+              @input="setEndDate"
+              :value="defaultDatepicker(selectedProject.end_date)"
+              :min-date='selectedProject.start_date'   
+              :popover="{visibility: 'click' }"
+              :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+            </vc-date-picker>
+          </div>
+
+            <div class="thumbnail-container spacer">
+              <label class="vs-select--label input-select-label-primary"><b>Thumbnail</b></label>
+              <br>
+              <img v-if="!showUpload" class="popup-img-preview" :src="selectedProject.thumbnail" />
+              <CustomImgUpload v-else @imgSrc="setThumbnail"/>
+              <br>
+              <vs-button type="border" v-if="!showUpload" @click="showUpload = true">Replace</vs-button>
+              <vs-button type="border" v-else @click="showUpload = false">Close</vs-button>
+            </div>
+          </vs-tab>
+
+          <!-- Access Tab -->
+          <vs-tab label="Access" icon-pack="feather" icon="icon-user">
+            <!-- Owners Table -->
+            <vs-table :data="selectedProject.owners"> 
+              <template slot="header">
+                <label class="vs-select--label input-select-label-primary"><b>Owners</b></label>
+              </template>
+              <template slot="thead" >
                 <th class="ownerTableHeader">
                   Name
                 </th>
@@ -92,24 +127,67 @@
                           <span class="mt-1">{{ suggestion.displayName }}</span>
                         </div>
                       </template>
-                   </vue-auto-suggest>
+                    </vue-auto-suggest>
                   </vs-td>
                   <vs-td>
                     <vs-button color="success" style="margin-bottom:7px;">Add</vs-button>
                   </vs-td>
                 </tr>
               </template>
-               
-              </vs-table>
-            
+            </vs-table>
+            <!-- End Owners Table -->
+            <br>
+            <!-- Users Table -->
+            <vs-table :data="selectedProject.users"> 
+              <template slot="header">
+                <label class="vs-select--label input-select-label-primary"><b>Users</b></label>
+              </template>
+              <template slot="thead" >
+                <th class="ownerTableHeader">
+                  Name
+                </th>
+                <th class="ownerTableHeader">
+                  Actions
+                </th>
+            </template>
 
+            <template slot-scope="{data}">
+              <vs-tr v-for="tr in selectedProject.users" :key ="tr" :data="tr" class="border_bottom">
+                <vs-td>
+                  <span>{{getDisplayName(tr)}}</span>
+                </vs-td>
+                <vs-td>
+                  <vs-button color="danger">Delete</vs-button>
+                </vs-td>
+              </vs-tr>
+              <tr>
+                <vs-td>
+                  <vue-auto-suggest
+                  placeholder="Search a coworker.."
+                  :data="autocompleteData"
+                  :filter-by-query="true">
+
+                    <template v-slot:users="{ suggestion }">
+                      <div class="flex items-end leading-none py-1">
+                        <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
+                        <span class="mt-1">{{ suggestion.displayName }}</span>
+                      </div>
+                    </template>
+                  </vue-auto-suggest>
+                </vs-td>
+                <vs-td>
+                  <vs-button color="success" style="margin-bottom:7px;">Add</vs-button>
+                </vs-td>
+              </tr>
+            </template>
+            
+            </vs-table>
+            <!-- End Users Table -->
           </vs-tab>
 
-          <vs-tab label="Access" icon-pack="feather" icon="icon-box"></vs-tab>
+          <vs-tab label="History" icon-pack="feather" icon="icon-rotate-ccw"></vs-tab>
 
-          <vs-tab label="History" icon-pack="feather" icon="icon-mail"></vs-tab>
-
-          <vs-tab label="Marketplace" icon-pack="feather" icon="icon-briefcase">
+          <vs-tab label="Marketplace" icon-pack="feather" icon="icon-package">
             <h5>Publish to Marketplace</h5>
             
           </vs-tab>
@@ -137,20 +215,25 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import {mapActions,mapState, mapGetters} from 'vuex'
 import VueAutoSuggest from '../../components/vx-auto-suggest/VxAutoSuggest.vue'
+import CustomImgUpload from '../../custom/vsUpload/customImgUpload'
 import 'vue-context/dist/css/vue-context.css';
+import moment from 'moment'
 export default {
   data: () => ({
     deleteID:null,
     popupActive: false,
-    showControls:false
+    showControls:false,
+    showUpload:false
   }),
   components:{
-    VueAutoSuggest
+    VueAutoSuggest,
+    CustomImgUpload
   },
   watch:{
     popupActive(){
       if(this.popupActive == false){
        this.updateProject()
+       this.showUpload = false
       }
     }
   },
@@ -346,6 +429,11 @@ export default {
         }
       }
     },
+    defaultDatepicker(date){
+      if(date !== null && typeof(date) != 'undefined'){
+        return new Date(date)
+      }
+    },
     handleProjectPopup(project){
       this.$store.commit('project/SET_SELECTED_PROJECT',project,{ root: true })
       this.popupActive = true;
@@ -355,9 +443,22 @@ export default {
     },
     setProjectDescription(e){
       this.$store.commit('project/SET_SELECTED_PROJECT_DESCRIPTION',e,{ root: true })
-    }
-
-  
+    },
+    setThumbnail(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_THUMBNAIL',e,{ root: true })
+    },
+    setStartDate(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_STARTDATE',e,{ root: true })
+    },
+    setEndDate(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_ENDDATE',e,{ root: true })
+    },
+    setPrivacy(e){
+      this.$store.commit('project/SET_SELECTED_PROJECT_PRIVACY',e,{ root: true })
+    },
+    moment(date) {
+       return moment(date).format('MMMM Do YYYY')
+    },
   }
 };
 </script>
@@ -512,6 +613,18 @@ export default {
 
 .ownerTableHeader{
   background-color: #ebebeb;
+}
+.popup-img-preview{
+  width: 50%;
+  height: 50%;
+}
+
+.thumbnail-container{
+   padding-bottom: 15px;
+}
+
+.spacer{
+  padding-top:15px;
 }
 
 </style>

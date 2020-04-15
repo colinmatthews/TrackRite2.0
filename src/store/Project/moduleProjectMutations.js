@@ -32,6 +32,18 @@ export default{
   SET_SELECTED_PROJECT_DESCRIPTION(state,obj){
     state.selectedProject.description = obj
   },
+  SET_SELECTED_PROJECT_THUMBNAIL(state,string){
+    state.selectedProject.thumbnail = string
+  },
+  SET_SELECTED_PROJECT_STARTDATE(state,date){
+    state.selectedProject.start_date = date
+  },
+  SET_SELECTED_PROJECT_ENDDATE(state,date){
+    state.selectedProject.end_date = date
+  },
+  SET_SELECTED_PROJECT_PRIVACY(state,bool){
+    state.selectedProject.privacy = bool
+  },
   SET_SELECTED_PROJECT_OWNER(state,obj){
     state.selectedProject.owner = obj
   },

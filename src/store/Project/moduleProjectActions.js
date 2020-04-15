@@ -48,12 +48,12 @@ export default{
     })
   },
 
-  async updateProject({commit,state,dispatch}){
+  async updateProject({commit,state,dispatch,rootState}){
     let project = state.selectedProject
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/"
     let token = rootState.auth.firebaseToken
     await this.$http.put(url, project, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
-      commit('SET_PRIVATE_CONTENTS',res.data)
+      console.log(res)
     })
     .catch(err => {
       console.log(err)

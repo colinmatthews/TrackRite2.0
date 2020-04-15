@@ -354,9 +354,6 @@ export default {
     updateEndDate(date){
       this.newEndDate = date
     },
-    moment (date) {
-       return moment(date).format('MMMM Do YYYY')
-    },
   }
 
 }
