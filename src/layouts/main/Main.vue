@@ -39,6 +39,9 @@ import TheFooter from '../components/TheFooter.vue';
 import themeConfig from '@/../themeConfig.js';
 import sidebarItems from "@/layouts/components/vx-sidebar/sidebarItems.js";
 import BackToTop from 'vue-backtotop'
+import firebase from 'firebase'
+import 'firebase/auth'
+import {mapActions, mapState} from 'vuex'
 
 export default {
     data() {
@@ -129,7 +132,19 @@ export default {
         },
         toggleHideScrollToTop(val) {
             this.hideScrollToTop = val;
-        }
+        },
+         ...mapActions('project',[
+            'setContentLoaded',
+        ]),
+
+         ...mapActions('teams',[
+            'getTeams',
+            'getTeamProjects'
+        ]),
+         ...mapActions('auth',[
+            'setToken',
+            'getFavoriteProjects'
+         ]),
     },
     components: {
         VxSidebar,
@@ -144,6 +159,15 @@ export default {
         }else {
             this.updateNavbarColor(this.navbarColor)
         }
+
+        let user = firebase.auth().currentUser;
+        this.setToken(user)
+        .then(async () => {
+            await this.getTeams()
+            await this.getTeamProjects()
+            await this.getFavoriteProjects()
+            await this.setContentLoaded()
+        })
     }
 }
 </script>

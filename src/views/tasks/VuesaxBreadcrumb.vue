@@ -116,7 +116,7 @@ export default {
         return
       }
 
-      else if(taskPathLength > 4){ // Going to a breadcrumb other than the root
+      else if(taskPathLength > 6){ // Going to a breadcrumb other than the root
 
         // Delete N items from the breadcrumb
         await this.removeNFromBreadcrumb(N - 1)

@@ -1,17 +1,5 @@
 export default{
-  getProjects:(state) => {
-    
-    let publicContent = state.publicProjectContents
-    let privateContent = state.privateProjectContents
-   
-    privateContent.forEach(project => {
-      if(!project in publicContent){
-        publicContent.push(project)
-      }
-    })
-
-    return publicContent
-  },
+ 
   getDisplayName:(state, getters, rootState) => (uid) => {
     let users = rootState.auth.activeUsers
     let displayName = ""
@@ -24,9 +12,9 @@ export default{
 
     return displayName
   },
-  getProjectsForNavbarSearch:(state,getters) => { 
+  getProjectsForNavbarSearch:(state) => { 
    
-      let projects = getters.getProjects
+      let projects = state.projects
       let data = {}
       data.projects = {}
       data.projects.key = 'title'

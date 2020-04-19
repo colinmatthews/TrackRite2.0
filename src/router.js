@@ -58,6 +58,14 @@ const router = new Router({
               }
               },
               {
+                path: '/teams',
+                name: 'teams',
+                component: () => import('./views/teams/Teams.vue'),
+                meta:{
+                  authRequired:true
+              }
+              },
+              {
                 path: '/marketplace',
                 name: 'marketplace',
                 component: () => import('./views/marketplace/Marketplace.vue'),

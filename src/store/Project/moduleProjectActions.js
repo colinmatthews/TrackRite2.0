@@ -1,5 +1,5 @@
 export default{
-
+/*
   async initializePublicProjectKeys({ commit ,state, rootState,dispatch}) {
     
     let token = rootState.auth.firebaseToken
@@ -47,7 +47,7 @@ export default{
       console.log(err)
     })
   },
-
+*/
   async updateProject({commit,state,dispatch,rootState}){
     let project = state.selectedProject
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/"
@@ -65,8 +65,18 @@ export default{
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/"
     let token = rootState.auth.firebaseToken
     await this.$http.post(url, project, {headers: {"Authorization" : "Bearer " + token}}).then(async res => {
-      await dispatch('initializePublicProjectContents')
-      await dispatch('initializePrivateProjectContents')
+      console.log(res)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  },
+
+  async removeProject({commit,state,dispatch,rootState},obj){
+    let url = process.env.VUE_APP_FUNCTIONS_URL + "/projects/"
+    let token = rootState.auth.firebaseToken
+    await this.$http.delete(url, {headers: {"Authorization" : "Bearer " + token},data:{project:obj}}).then(async res => {
+      console.log(res)
     })
     .catch(err => {
       console.log(err)

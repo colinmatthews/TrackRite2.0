@@ -42,6 +42,11 @@
   
         .vx-auto-suggest {
           color: $content-color;
+          background: $white;
+        }
+
+        .auto-suggest-suggestions-list{
+          background: $white;
         }
       }
   

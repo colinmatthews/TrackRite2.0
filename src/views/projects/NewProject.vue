@@ -132,7 +132,7 @@
                 <vue-auto-suggest
                     @selected="updateOwner"
                     :placeholder="newOwner.displayName"
-                    :data="autocompleteData"
+                    :data="usersAutocompleteData"
                     :filter-by-query="true">
 
                       <template v-slot:users="{ suggestion }">
@@ -145,13 +145,30 @@
               </vs-col>
 
               <vs-col vs-w="12" class="spacer">
+                <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Team</label>
+                <vue-auto-suggest
+                    @selected="updateTeam"
+                    :placeholder="newTeam.title"
+                    :data="teamsAutocompleteData"
+                    :filter-by-query="true">
+
+                      <template v-slot:teams="{ suggestion }">
+                        <div class="flex items-end leading-none py-1">
+                          <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
+                          <span class="mt-1">{{ suggestion.title }}</span>
+                        </div>
+                      </template>
+                   </vue-auto-suggest>
+              </vs-col>
+
+              <vs-col vs-w="12" class="spacer">
                 <label class="vs-select--label" style="color:rgba(0,0,0,.7);">Start Date</label>
                 <vc-date-picker
                   popover-visibility="click" 
                   @input="updateStartDate"
                   :value="newStartDate" 
                   :popover="{visibility: 'click' }"
-                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden",placement:"bottom"}'>
                 </vc-date-picker>
               </vs-col>
 
@@ -163,7 +180,7 @@
                   :value="newEndDate"
                   :min-date='newStartDate'   
                   :popover="{visibility: 'click' }"
-                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
+                  :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden",placement:"bottom"}'>
                 </vc-date-picker>
               </vs-col>
             
@@ -195,10 +212,6 @@
                 <CustomFileUpload automatic />
               </vs-col>
           
-              <vs-col vs-w="12" class="new-project-buttons">
-                <vs-button class="mr-3 mb-2" @click="submitNewProject">Create</vs-button>
-                <vs-button color="warning" type="border" class="mb-2" @click="showNewProjectForm = false ; showFileImport = false" >Cancel</vs-button>
-              </vs-col>
             </vs-row>
           </vs-col>
 
@@ -215,10 +228,15 @@
                 />
               </div>
 
-              <h2 id="card-title">{{ newTitle}}</h2>
-              <small id="card-description">{{newDescription}}</small>
+              <h3 id="card-title">{{ newTitle}}</h3>
+              <p id="card-description">{{newDescription}}</p>
             </div>
+            <div class="new-project-buttons">
+                <vs-button class="mr-3 mb-2" @click="submitNewProject">Create</vs-button>
+                <vs-button color="warning" type="border" class="mb-2" @click="showNewProjectForm = false ; showFileImport = false" >Cancel</vs-button>
+              </div>
           </vs-col>
+          
         </vs-row>
 
       </div>
@@ -249,6 +267,9 @@ export default {
     newSrc:null,
     newStartDate:null,
     newEndDate:null,
+    newTeam:{
+      title:"Search a team..."
+    },
     newOwner:{
       displayName:"Search a coworker..."
     }
@@ -265,6 +286,10 @@ export default {
       activeUsers: state => state.activeUsers
     }),
 
+    ...mapState('teams', {
+      teams: state => state.teams
+    }),
+
     privacyText(){
       if(this.newPrivate){
         return "(Only people you invite)"
@@ -279,7 +304,7 @@ export default {
       return "Public "
     },
     
-    autocompleteData(){
+    usersAutocompleteData(){
       let users = this.activeUsers
       let data = {}
       data.users = {}
@@ -294,21 +319,36 @@ export default {
       })
       return data
     },
+
+    teamsAutocompleteData(){
+      let teams = this.teams
+      let data = {}
+      data.teams = {}
+      data.teams.key = 'title'
+      data.teams.data = []
+
+      teams.forEach(el => {
+        data.teams.data.push({
+          title:el.title,
+          key:el.key
+        })
+      })
+      return data
+
+    }
   },
   methods:{
     ...mapActions('project',[
-      'createProject'
+      'createProject',
+      'initializePublicProjectContents',
+      'initializePrivateProjectContents',
     ]),
 
     submitNewProject() {
       this.$validator.validateAll().then(result => {
         if (result) {
-          let users = null
-          if(this.newPrivate){
-            users = [this.newOwner.uid]
-          }
-
-        let project = {
+        
+        const project = {
           title:this.newTitle,
           description:this.newDescription,
           end_date:this.newEndDate,
@@ -316,10 +356,20 @@ export default {
           private:this.newPrivate,
           thumbnail:this.newSrc,
           owners:[this.newOwner.uid],
-          users:users
+          users:[this.newOwner.uid],
+          guests:null
+        }
+
+        const data ={
+          project:project,
+          team:this.newTeam
         }
           
-          this.createProject(project)
+          this.createProject(data)
+          .then(async () => {
+            await this.initializePublicProjectContents()
+            await this.initializePrivateProjectContents()
+          })
           .then(this.$router.push('/projects'))
         } 
         else{
@@ -345,8 +395,10 @@ export default {
       })
     },
     updateOwner(owner){
-      console.log(owner.users)
       this.newOwner = owner.users
+    },
+    updateTeam(obj){
+      this.newTeam = obj.teams
     },
     updateStartDate(date){
       this.newStartDate = date
@@ -392,7 +444,7 @@ export default {
 }
 
 .card-container{
-  height: 850px;
+  height: 790px;
 }
 .extended{
    height: 1100px;
@@ -444,6 +496,7 @@ export default {
 
 .new-project-buttons{ 
   padding-top:25px;
+  float: right;
 }
 
 .spacer{

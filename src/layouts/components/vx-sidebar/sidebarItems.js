@@ -39,10 +39,11 @@ export default [
     icon: "BookOpenIcon",
   },
   {
-    url: '/profile',
-    name: 'Profile',
-    slug: 'profile',
-    icon: "UserIcon",
+    url: '/teams',
+    name: 'Teams',
+    slug: 'teams',
+    icon: "UsersIcon",
   },
+  
 
 ]

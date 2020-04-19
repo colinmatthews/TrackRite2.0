@@ -1,8 +1,5 @@
 export default{
-  privateProjectKeys:[],
-  privateProjectContents:[],
-  publicProjectKeys:[],
-  publicProjectContents:[],
+  projects:[],
   contentLoaded:false,
   selectedProject:{}
 }

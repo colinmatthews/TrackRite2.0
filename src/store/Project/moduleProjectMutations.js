@@ -1,19 +1,8 @@
+import Vue from 'vue'
 export default{
   //Initializing projects
-  SET_PRIVATE_KEYS(state,array){
-    state.privateProjectKeys = array
-  },
-  SET_PRIVATE_CONTENTS(state,array){
-    state.privateProjectContents = array
-  },
-  SET_PUBLIC_KEYS(state,array){
-    state.publicProjectKeys = array
-  },
-  SET_PUBLIC_CONTENTS(state,array){
-    state.publicProjectContents = array
-  },
-  SET_ALL_PROJECTS(state,array){
-    state.allProjects = array
+  SET_PROJECTS(state,array){
+    state.projects = array
   },
   SET_CONTENT_LOADED(state){ 
     state.contentLoaded = true
@@ -42,7 +31,7 @@ export default{
     state.selectedProject.end_date = date
   },
   SET_SELECTED_PROJECT_PRIVACY(state,bool){
-    state.selectedProject.privacy = bool
+    Vue.set(state.selectedProject,'private',bool)
   },
   SET_SELECTED_PROJECT_OWNER(state,obj){
     state.selectedProject.owner = obj

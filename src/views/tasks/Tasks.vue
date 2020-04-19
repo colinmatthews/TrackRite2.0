@@ -123,15 +123,36 @@ export default {
       else if('pid' in to.params){
         this.loadProject()
       }
+    },
+    contentLoaded(){
+      if(this.contentLoaded){
+        let loadProject = false
+        let loadTask = false
+
+        if('pid' in this.$route.params) loadProject = true
+        if('tid' in this.$route.params) loadTask = true
+
+        // Load specific project and task
+        if(loadProject && loadTask){
+          this.loadTaskAndProject()
+        }
+        //Load specific project at root
+        else if(loadProject){
+          this.loadProject()
+        }
+        setTimeout(() => {
+          this.showControls = true
+        },100)
+      }
     }
   },
   computed:{
     ...mapState('project', {
-      allProjects: state => state.allProjects,
+      projects: state => state.projects,
       contentLoaded: state => state.contentLoaded
     }),
 
-     ...mapState('tasks', {
+    ...mapState('tasks', {
       currentProject: state => state.currentProject,
       breadcrumbTitles: state => state.breadcrumbTitles,
       children: state => state.children
@@ -141,30 +162,8 @@ export default {
       activeUsers: state => state.activeUsers
     }),
 
-    ...mapGetters('project',[
-      'getProjects'
-    ]),
-
   },
   methods: {
-    ...mapActions('project',[
-      'initializePublicProjectKeys', 
-      'initializePublicProjectContents',
-      'initializePrivateProjectKeys',
-      'initializePrivateProjectContents',
-      'setContentLoaded'
-    ]),
-
-    ...mapActions('auth',[
-      'setToken',
-      'getActiveUsers',
-      'postUser',
-      'setToken',
-      'pushFavoriteProject',
-      'spliceFavoriteProject',
-      'getFavoriteProjects'
-    ]),
-
     ...mapActions('tasks',[
       'setCurrentProject',
       'getProjectChildren',
@@ -173,6 +172,9 @@ export default {
       'setCurrentTaskByURLSafeKey',
       'getCurrentTaskBreadcrumbTitles'
     ]),
+
+    
+
     addProject() {
       this.$router.push("/projects/new");
     },
@@ -188,7 +190,7 @@ export default {
       try{
         this.$store.commit('tasks/SET_CURRENT_MULTISELECTED',[]) // clear mutliselect
 
-        let projects = this.getProjects
+        let projects = this.projects
         if(typeof(projects) !== 'undefined'){ // if projects are loaded
 
           let pid = this.$route.params.pid
@@ -207,7 +209,11 @@ export default {
               }])
             }
             else{
-              this.setBreadcrumbTitles([])
+              this.setBreadcrumbTitles([{
+                key:{path:[1,2,3,4,5,6],id:1234},
+                title:'Home',
+                tr:project[0]
+              }])
             }
           }
           else{
@@ -238,14 +244,15 @@ export default {
       try{
         this.$store.commit('tasks/SET_CURRENT_MULTISELECTED',[]) // clear mutliselect
 
-        let projects = this.getProjects
+        let projects = this.projects
         if(typeof(projects) !== 'undefined'){ // if projects are loaded
 
           let pid = this.$route.params.pid
           let tid = this.$route.params.tid
 
           let project = projects.filter(el => el.key.id == pid) // get project based on route param
-          console.log(project)
+
+          console.log(projects)
 
           if(project.length == 1){ // if param id matches a single project
             await this.setCurrentProject(project[0])
@@ -277,94 +284,8 @@ export default {
       }
     }
   },
-  created() {
-    if(!this.contentLoaded){
-      let user = firebase.auth().currentUser;
-      this.setToken(user)
-      .then(async () => {
-          await this.initializePublicProjectKeys()
-          await this.initializePrivateProjectKeys()
-          await this.initializePublicProjectContents()
-          await this.initializePrivateProjectContents()
-          await this.getFavoriteProjects()
-      })
-      .then(async () => {
-
-        let loadProject = false
-        let loadTask = false
-
-        if('pid' in this.$route.params) loadProject = true
-        if('tid' in this.$route.params) loadTask = true
-
-        // Load specific project and task
-        if(loadProject && loadTask){
-         this.loadTaskAndProject()
-        }
-        //Load specific project at root
-        else if(loadProject){
-          this.loadProject()
-        }
-        setTimeout(() => {
-          this.showControls = true
-        },100)
-        
-      })
-      .then(async() =>{
-        await this.getActiveUsers()
-        .then(() => {
-          let newUser = true
-        
-          this.activeUsers.forEach(el => {
-          
-            if(el.uid == user.uid){
-              
-              newUser = false
-            }
-          })
-          //TODO: Fix initial user registration in database. Consider putting this in the registration / sign up actions
-          /*
-          if(newUser){
-            this.postUser()
-          }
-          */
-        })   
-      })
-      .then(async () => {
-        await this.setContentLoaded()
-      })
-    }
-    // Content has already loaded but moving to tasks from another page
-    else{
-        let loadProject = false
-        let loadTask = false
-
-        if('pid' in this.$route.params) loadProject = true
-        if('tid' in this.$route.params) loadTask = true
-
-        // Load specific project and task
-        if(loadProject && loadTask){
-          // Set current project to pid by query
-
-
-          //Set current task to tid by query
-
-          
-          //Set current children to children of tid by query
-
-
-          //Set breadcrumb titles via ancerstor query
-          
-
-        }
-        //Load specific project at root
-        else if(loadProject){
-          this.loadProject()
-        }
-        setTimeout(() => {
-          this.showControls = true
-        },400)
-
-    }
+  async mounted() {
+      
   },
 };
 </script>

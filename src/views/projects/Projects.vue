@@ -12,7 +12,7 @@
           vs-align="center"
           :vs-order="-1"
           vs-w="4"
-          v-for="(project,index) in getProjects"
+          v-for="(project,index) in projects"
           :key="index"
           style="position: relative!important; z-index: -10!important;"
         >
@@ -21,7 +21,7 @@
               <vs-button @click="setFavorite(project)"  icon="star" color="warning" v-if="checkFavorite(project)"></vs-button> 
               <vs-button @click="setFavorite(project)"  icon="star" type="border" v-else></vs-button> 
             </div>
-            <div class="delete-icon" @click="deleteConfirm(project.key.id)">
+            <div class="delete-icon" @click="deleteConfirm(); deleteProject = project">
               <i class="material-icons">clear</i>
             </div>
             <div class="image">
@@ -32,11 +32,18 @@
               />
             </div>
 
-            <h2 class="card-title">{{ project.title}}</h2>
-            <small>{{project.description}}</small>
-            <div @click="handleProjectPopup(project)">
-              <vs-icon icon-pack="feather" icon="icon-more-vertical" class="projectDetailsButton" > </vs-icon> 
-            </div>
+            <h3 >{{ project.title}}</h3>
+            <h5>{{project.description}}</h5>
+            <vs-row>
+              <vs-col vs-w="6">
+                 <p class="projectTeam">{{project.team.title}} </p>
+              </vs-col>
+              <vs-col vs-w="6">
+                <div @click="handleProjectPopup(project)">
+                <vs-icon icon-pack="feather" icon="icon-more-vertical" class="projectDetailsButton" > </vs-icon> 
+              </div>
+              </vs-col>
+            </vs-row>
           </vs-card>
         </vs-col>
       </vs-row>
@@ -55,7 +62,7 @@
             <vs-input class="my-3 w-full" :value="selectedProject.title" @input="setProjectTitle" ></vs-input>
 
             <label class="vs-select--label input-select-label-primary"><b>Description</b></label>
-            <vs-textarea class="my-3" :value="selectedProject.description" @input="setProjectDescription" ></vs-textarea>
+            <vs-input class="my-3 w-full" :value="selectedProject.description" @input="setProjectDescription" ></vs-input>
 
            <label class="vs-select--label input-select-label-primary"><b>Start Date</b></label>
             <vc-date-picker
@@ -77,6 +84,19 @@
               :input-props='{class:"vs-inputx vs-input--input normal hasValue",visibility:"hidden"}'>
             </vc-date-picker>
           </div>
+
+            <div class="spacer">
+              <label class="vs-select--label input-select-label-primary"><b>Privacy</b></label>
+              <br>
+              <vs-row>
+                <vs-col vs-w="2">
+                  <vs-switch v-model="localPrivacy"/>
+                </vs-col>
+                <vs-col vs-w="10">
+                  <label><b>{{privacyType}}</b>{{privacyText}} </label>
+                </vs-col>
+              </vs-row>
+            </div>
 
             <div class="thumbnail-container spacer">
               <label class="vs-select--label input-select-label-primary"><b>Thumbnail</b></label>
@@ -223,7 +243,8 @@ export default {
     deleteID:null,
     popupActive: false,
     showControls:false,
-    showUpload:false
+    showUpload:false,
+    deleteProject:null,
   }),
   components:{
     VueAutoSuggest,
@@ -239,7 +260,7 @@ export default {
   },
   computed:{
     ...mapState('project', {
-      allProjects: state => state.allProjects,
+      projects: state => state.projects,
       contentLoaded: state => state.contentLoaded,
       selectedProject: state => state.selectedProject
     }),
@@ -251,7 +272,6 @@ export default {
     }),
 
     ...mapGetters('project',[
-      'getProjects',
       'getDisplayName'
     ]),
      autocompleteData(){
@@ -270,82 +290,51 @@ export default {
 
       return data
     },
+    privacyText(){
+      if(this.selectedProject.private){
+        return "(Only people you invite)"
+      }
+      return "(Visible to everyone in your organization)"
+    },
+
+    privacyType(){
+      if(this.selectedProject.private){
+        return "Private "
+      }
+      return "Public "
+    },
+
+    localPrivacy:{
+      get(){
+         return this.$store.state.project.selectedProject.private
+      },
+      set(value){
+        
+        this.$store.commit('project/SET_SELECTED_PROJECT_PRIVACY',value,{ root: true })
+      }
+    }
     
 
   },
   beforeDestroy(){
     this.showControls = false
   },
-  created() {
-    if(!this.contentLoaded){
-      let user = firebase.auth().currentUser;
-      this.setToken(user)
-      .then(async () => {
-          await this.initializePublicProjectKeys()
-          await this.initializePrivateProjectKeys()
-          await this.initializePublicProjectContents()
-          await this.initializePrivateProjectContents()
-          await this.getFavoriteProjects()
-      })
-      .then(async () => {
-        let key = this.getProjects
-        if(typeof(key) !== 'undefined'){
-          console.log(key)
-          await this.setCurrentProject(key[0])
-          await this.getProjectChildren()
-        }
-        setTimeout(() => {
-          this.showControls = true
-        },100)
-        
-      })
-      .then(async() =>{
-        await this.getActiveUsers()
-        .then(() => {
-          let newUser = true
-        
-          this.activeUsers.forEach(el => {
-          
-            if(el.uid == user.uid){
-              
-              newUser = false
-            }
-          })
-          /*
-          if(newUser){
-            this.postUser()
-          }
-          */
-        })   
-      })
-      .then(() => {
-        setTimeout(() => {
-          this.showControls = true
-        },1000)
-      })
-    }
-    else{
+  mounted() {
+    setTimeout(() => {
        this.showControls = true
-    }
+    },100)
+   
   },
   methods: {
     ...mapActions('project',[
-      'initializePublicProjectKeys', 
-      'initializePublicProjectContents',
-      'initializePrivateProjectKeys',
-      'initializePrivateProjectContents',
-      'setContentLoaded',
-      'updateProject'
+      'updateProject',
+      'removeProject'
     ]),
 
     ...mapActions('auth',[
-      'setToken',
-      'getActiveUsers',
       'postUser',
-      'setToken',
       'pushFavoriteProject',
       'spliceFavoriteProject',
-      'getFavoriteProjects'
     ]),
 
     ...mapActions('tasks',[
@@ -354,40 +343,41 @@ export default {
       'setCurrentTask',
     ]),
 
-    deleteConfirm(id){
-      this.deleteID = id
+    deleteConfirm(){
       this.$vs.dialog({
         type:'confirm',
         color: 'danger',
         title: `Confirm`,
         text: 'Are you sure you want to delete this project? This action cannot be reversed.',
-        accept:this.deleteAlert
+        accept:this.handleDelete
       })
     },
 
-    deleteAlert(){
-      //this.removeProject(this.deleteID)
-      this.$vs.notify({
-        color:'danger',
-        title:'Deleted',
-        text:'The project was successfully deleted'
-      })
-    },
-    removeProject() {
-      // DELETE REQUEST GOES HERE
-      // this.$http.delete('/p/' + id).then(x => {
-      //   console.log(x.data);
+    handleDelete(){
+      let project = this.deleteProject
+      if(project !== null){
+        this.removeProject(project)
+        .then(async () => {
+            await this.initializePublicProjectContents()
+            await this.initializePrivateProjectContents()
+          })
+        
+        let found = false;
+        if(this.favoriteProjects != null){
+          this.favoriteProjects.forEach(el => {
+            if(el.key.id == project.key.id){
+              found = true
+            }
+          })
 
-      // })
-      // .catch(e => {
-      //   console.log(e);
-      //   return;
-      // });
+          if(found){
+            this.spliceFavoriteProject(project)
+          }
 
-      this.projects.splice(
-        this.projects.map(x => x.id).indexOf(this.removalProject.id),
-        1
-      );
+          this.deleteProject = null
+
+        }
+      }
     },
     checkFavorite(project){
       let favorite = false;
@@ -402,7 +392,7 @@ export default {
     setFavorite(project){
       let found = false;
       if(this.favoriteProjects == null){
-        this.pushFavoriteProject(project)
+        this.pushFavoriteProject([project])
         return;
       }
       else{
@@ -416,7 +406,7 @@ export default {
           this.spliceFavoriteProject(project)
         }
         else{
-          if(this.favoriteProjects.length == 4){
+          if(this.favoriteProjects.length == 5){
             this.$vs.notify({
             color:'warning',
             title:'Maximum Favorites',
@@ -434,6 +424,7 @@ export default {
         return new Date(date)
       }
     },
+    
     handleProjectPopup(project){
       this.$store.commit('project/SET_SELECTED_PROJECT',project,{ root: true })
       this.popupActive = true;
@@ -453,9 +444,7 @@ export default {
     setEndDate(e){
       this.$store.commit('project/SET_SELECTED_PROJECT_ENDDATE',e,{ root: true })
     },
-    setPrivacy(e){
-      this.$store.commit('project/SET_SELECTED_PROJECT_PRIVACY',e,{ root: true })
-    },
+
     moment(date) {
        return moment(date).format('MMMM Do YYYY')
     },
@@ -601,6 +590,15 @@ export default {
   position: absolute;
   bottom: 10px;
   right: 5px;
+  cursor: pointer;
+
+}
+
+.projectTeam{
+  float:left;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
   cursor: pointer;
 
 }
