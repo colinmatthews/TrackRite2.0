@@ -11,7 +11,6 @@ export default{
     })
   },
 
-
   async getTeamProjects({commit,dispatch,state,rootState}){
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/teams/children"

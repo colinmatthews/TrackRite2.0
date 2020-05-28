@@ -444,7 +444,7 @@ export default {
 }
 
 .card-container{
-  height: 790px;
+  height: 150%;
 }
 .extended{
    height: 1100px;

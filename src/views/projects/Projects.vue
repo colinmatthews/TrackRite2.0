@@ -1,8 +1,31 @@
 <template>
   <div class="projects-page">
     <!-- Projects grid -->
-    <span class="title">Projects</span>
+    
+      
+         <span class="title">Projects</span>
+     
+      <span  class="filter-container" >
+          <div class="absolute inline right-80">
+            <vue-auto-suggest
+              @selected="updateFilter"
+              :placeholder="projectFilter.teams.title"
+              :data="teamsAutocompleteData"
+              :filter-by-query="true">
 
+              <template v-slot:teams="{ suggestion }">
+                <div class="flex items-end leading-none py-1">
+                  <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
+                  <span class="mt-1">{{ suggestion.title }}</span>
+                </div>
+              </template>
+            </vue-auto-suggest>
+          </div>
+          <vs-button color="danger" type="filled" icon="close" @click="resetFilter()" style="float:right"></vs-button>
+           
+        
+      </span>
+   
     <div class="projects-display">
       <vs-row class="r2">
         <vs-col
@@ -12,7 +35,7 @@
           vs-align="center"
           :vs-order="-1"
           vs-w="4"
-          v-for="(project,index) in projects"
+          v-for="(project,index) in filteredProjects"
           :key="index"
           style="position: relative!important; z-index: -10!important;"
         >
@@ -36,7 +59,7 @@
             <h5>{{project.description}}</h5>
             <vs-row>
               <vs-col vs-w="6">
-                 <p class="projectTeam">{{project.team.title}} </p>
+                 <p class="projectTeam" @click="setFilter(project.team)">{{project.team.title}} </p>
               </vs-col>
               <vs-col vs-w="6">
                 <div @click="handleProjectPopup(project)">
@@ -138,7 +161,7 @@
                   <vs-td>
                     <vue-auto-suggest
                     placeholder="Search a coworker.."
-                    :data="autocompleteData"
+                    :data="usersAutocompleteData"
                     :filter-by-query="true">
 
                       <template v-slot:users="{ suggestion }">
@@ -184,7 +207,7 @@
                 <vs-td>
                   <vue-auto-suggest
                   placeholder="Search a coworker.."
-                  :data="autocompleteData"
+                  :data="usersAutocompleteData"
                   :filter-by-query="true">
 
                     <template v-slot:users="{ suggestion }">
@@ -245,6 +268,12 @@ export default {
     showControls:false,
     showUpload:false,
     deleteProject:null,
+    projectFilter:{
+      teams:{
+        title:"Filter by team...",
+        id:-1
+      }
+    }
   }),
   components:{
     VueAutoSuggest,
@@ -271,10 +300,21 @@ export default {
      
     }),
 
+    ...mapState('teams', {
+      teams: state => state.teams,
+    }),
+
     ...mapGetters('project',[
       'getDisplayName'
     ]),
-     autocompleteData(){
+
+    filteredProjects(){
+      if(this.projectFilter.teams.id == -1){
+        return this.projects
+      }
+      return this.projects.filter(el => el.team.key.id == this.projectFilter.teams.id)
+    },
+    usersAutocompleteData(){
       let users = this.activeUsers
       let data = {}
       data.users = {}
@@ -290,11 +330,27 @@ export default {
 
       return data
     },
+    teamsAutocompleteData(){
+      let teams = this.teams
+      let data = {}
+      data.teams = {}
+      data.teams.key = 'title'
+      data.teams.data = []
+
+      teams.forEach(el => {
+        data.teams.data.push({
+          title:el.title,
+          id:el.key.id
+        })
+      })
+
+      return data
+    },
     privacyText(){
       if(this.selectedProject.private){
         return "(Only people you invite)"
       }
-      return "(Visible to everyone in your organization)"
+      return "(Visible to everyone in your team)"
     },
 
     privacyType(){
@@ -424,7 +480,25 @@ export default {
         return new Date(date)
       }
     },
-    
+    setFilter(team){
+      this.projectFilter = {
+        teams:{
+          title:team.title,
+          id:team.key.id
+        }
+      }
+    },
+    updateFilter(obj){
+      this.projectFilter = obj
+    },
+    resetFilter(){
+      this.projectFilter = {
+        teams:{
+            title:"Filter by team...",
+            id:-1
+        }
+      }
+    },
     handleProjectPopup(project){
       this.$store.commit('project/SET_SELECTED_PROJECT',project,{ root: true })
       this.popupActive = true;
@@ -455,6 +529,7 @@ export default {
 <style scoped>
 .card-project {
   z-index: -1;
+  position: relative;
 }
 
 #switch {
@@ -509,7 +584,7 @@ export default {
 .projects-display {
   text-align: center;
   position: relative;
-  z-index: 999;
+  z-index: 1;
 }
 
 .icon-controls {
@@ -623,6 +698,10 @@ export default {
 
 .spacer{
   padding-top:15px;
+}
+
+.right-80{
+  right: 80px;
 }
 
 </style>

@@ -140,9 +140,9 @@ export default {
         else if(loadProject){
           this.loadProject()
         }
-        setTimeout(() => {
-          this.showControls = true
-        },100)
+       
+        this.showControls = true
+        
       }
     }
   },
@@ -285,6 +285,12 @@ export default {
     }
   },
   async mounted() {
+    if(this.contentLoaded){
+      setTimeout(() => {
+         this.showControls = true
+      }, 200)
+      
+    }
       
   },
 };

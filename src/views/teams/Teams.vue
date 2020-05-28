@@ -1,10 +1,13 @@
 <template>
-  <p>test</p>
+  <TeamsDataList />
 </template>
 
 <script>
+import TeamsDataList from './TeamsDataList'
 export default {
-
+  components:{
+    TeamsDataList
+  }
 }
 </script>
 

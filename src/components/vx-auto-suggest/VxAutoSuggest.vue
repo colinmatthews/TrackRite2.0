@@ -24,8 +24,9 @@
     <!-- Group List -->
     <ul
       ref="scrollContainer"
+      style="position:relative;"
       :class="{'hidden': !inputFocused}"
-      class="auto-suggest-suggestions-list z-50 rounded-lg mt-2 shadow-lg overflow-x-hidden"
+      class="auto-suggest-suggestions-list z-50 rounded-lg mt-2 shadow-lg overflow-x-hidden "
       @mouseenter="insideSuggestions = true"
       @mouseleave="insideSuggestions = false"
       @focus="updateInputFocus"
@@ -44,7 +45,7 @@
           </p>
 
           <!-- Suggestion List of each group -->
-          <ul>
+          <ul class="z-50" >
             <li
               v-for="(suggestion, index) in suggestion_list"
               :key="index"
@@ -266,4 +267,11 @@ export default{
   position: relative;
   z-index: 500000;
 }
+.absolute{
+  position: absolute;
+}
+
+ .auto-suggest-suggestions-list{
+    background: #fff
+  }
 </style>

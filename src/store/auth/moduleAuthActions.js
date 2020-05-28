@@ -421,16 +421,19 @@ export default {
         })
     },
 
-    async getActiveUsers({commit,state,dispatch}){
-        await dispatch('setToken')
-        let token = state.firebaseToken
-        let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/"
-        await this.$http.get(url, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
+    async getActiveUsers({dispatch,commit,getters,rootGetters,state,rootState}){
+        let uids = rootGetters['teams/getAllUids']
+        console.log(uids)
+        if(uids != null){
+          let token = rootState.auth.firebaseToken
+          let url = process.env.VUE_APP_FUNCTIONS_URL + "/users/batch"
+          await this.$http.post(url,uids, {headers: {"Authorization" : "Bearer " + token}}).then(res => {
             commit('SET_ACTIVE_USERS',res.data)
-        })
-        .catch(err => {
+          })
+          .catch(err => {
             console.log(err)
-        }) 
+          })
+        }
     },
 
     async getFavoriteProjects({commit,state,dispatch}){

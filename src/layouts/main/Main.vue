@@ -143,7 +143,8 @@ export default {
         ]),
          ...mapActions('auth',[
             'setToken',
-            'getFavoriteProjects'
+            'getFavoriteProjects',
+            'getActiveUsers'
          ]),
     },
     components: {
@@ -165,6 +166,7 @@ export default {
         .then(async () => {
             await this.getTeams()
             await this.getTeamProjects()
+            await this.getActiveUsers()
             await this.getFavoriteProjects()
             await this.setContentLoaded()
         })
