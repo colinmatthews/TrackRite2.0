@@ -399,6 +399,11 @@ export default {
       'setCurrentTask',
     ]),
 
+    ...mapActions('teams',[
+       'getTeamProjects'
+     ]),
+
+
     deleteConfirm(){
       this.$vs.dialog({
         type:'confirm',
@@ -413,10 +418,7 @@ export default {
       let project = this.deleteProject
       if(project !== null){
         this.removeProject(project)
-        .then(async () => {
-            await this.initializePublicProjectContents()
-            await this.initializePrivateProjectContents()
-          })
+        .then(this.getTeamProjects())
         
         let found = false;
         if(this.favoriteProjects != null){

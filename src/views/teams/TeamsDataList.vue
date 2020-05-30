@@ -10,7 +10,9 @@
 <template>
   <div id="data-list-thumb-view" class="data-list-container">
 
-    <vs-table ref="table" search :data="this.teams">
+    <vs-button color="success" class="new-team-button" @click="newTeamActive = true">New Team</vs-button>
+
+    <vs-table ref="table" search :data="this.teams" @selected="editData">
 
       <template slot="thead">
         <vs-th></vs-th>
@@ -32,16 +34,16 @@
             </vs-td>
 
              <vs-td>
-              <span v-for="user in tr.users">
-                <vx-tooltip :text="getDisplayName(user.uid)" position="bottom" class="imgContainer">
-                  <img class="avatarImg" :src="'https://ui-avatars.com/api/?name=' + getDisplayName(user.uid)"/>
+              <span v-for="user in tr.users" >
+                <vx-tooltip :text="getDisplayName(user)" position="bottom" class="members-container">
+                  <img class="avatarImg" :src="'https://ui-avatars.com/api/?name=' + getDisplayName(user)"/>
                 </vx-tooltip>
               </span>
             </vs-td>
 
             <vs-td class="whitespace-no-wrap">
               <feather-icon icon="EditIcon" svgClasses="w-5 h-5 hover:text-primary stroke-current" @click.stop="editData(tr)" />
-              <feather-icon icon="ArchiveIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2" @click.stop="deleteData(tr.id)" />
+              <feather-icon icon="ArchiveIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2" @click.stop="deleteConfirm(tr)" />
             </vs-td>
 
           </vs-tr>
@@ -50,51 +52,52 @@
     </vs-table>
 
     <vs-popup :title="selected.title" :active.sync="popupActive">
-      <h3>Members</h3>
-      <vs-table :data="selected.users"> 
-        <template slot="header">
+      <vs-tabs>
+         <vs-tab label="Add Member" icon-pack="feather" icon="icon-user">
+            
+          <h6 class="revoke-header">Enter in a list of comma seperated email addresses. When you're done, click add!</h6>
+          <vs-textarea label="Email Addresses" v-model="newMembers" placeholder="first.last@company.com, first.last@company.com" height="350"> </vs-textarea>
+          <vs-button color="success" class="float-right" @click="addNewMembers()">Add</vs-button>
+              
+         </vs-tab>
 
-        </template>
-        <template slot="thead" >
-          <th class="ownerTableHeader">
-            Name
-          </th>
-          <th class="ownerTableHeader">
-            Actions
-          </th>
-      </template>
+         <vs-tab label="Revoke Access" icon-pack="feather" icon="icon-user">
+           <h6 class="revoke-header">Revoke access from users on this team</h6>
+           <vs-table :data="selected.users"> 
+            <template slot="header">
 
-      <template slot-scope="{data}">
-        <vs-tr v-for="tr in selected.users" :key ="tr" :data="tr" class="border_bottom">
-          <vs-td>
-            <span>{{getDisplayName(tr)}}</span>
-          </vs-td>
-          <vs-td>
-            <vs-button color="danger">Delete</vs-button>
-          </vs-td>
-        </vs-tr>
-        <tr>
-          <vs-td>
-            <vue-auto-suggest
-            placeholder="Search a coworker.."
-            :data="usersAutocompleteData"
-            :filter-by-query="true">
+            </template>
+            <template slot="thead" >
+              <th class="ownerTableHeader">
+                Name
+              </th>
+              <th class="ownerTableHeader">
+                Actions
+              </th>
+          </template>
 
-              <template v-slot:users="{ suggestion }">
-                <div class="flex items-end leading-none py-1">
-                  <feather-icon :icon="suggestion.icon" svgClasses="h-5 w-5" class="mr-4" />
-                  <span class="mt-1">{{ suggestion.displayName }}</span>
-                </div>
-              </template>
-            </vue-auto-suggest>
-          </vs-td>
-          <vs-td>
-            <vs-button color="success" style="margin-bottom:7px;">Add</vs-button>
-          </vs-td>
-        </tr>
-      </template>
-      
-      </vs-table>
+          <template slot-scope="{data}">
+            <vs-tr v-for="tr in selected.users" :key ="tr" :data="tr" class="border_bottom">
+              <vs-td>
+                <span>{{getDisplayName(tr)}}</span>
+              </vs-td>
+              <vs-td>
+                <vs-button color="danger">Delete</vs-button>
+              </vs-td>
+            </vs-tr>
+          </template>
+          
+          </vs-table>
+         </vs-tab>
+
+      </vs-tabs>
+    </vs-popup>
+
+    <vs-popup title="New Team" :active.sync="newTeamActive">
+      <vs-input label="Title" class="w-full" v-model="newTitle"></vs-input>
+      <br>
+      <vs-textarea label="Email Addresses" v-model="newMembers" placeholder="first.last@company.com, first.last@company.com" height="350"> </vs-textarea>
+      <vs-button color="success" class="float-right" @click="createNewTeam()">Create</vs-button>
     </vs-popup>
 
   </div>
@@ -108,7 +111,11 @@ export default {
       selected:{},
       itemsPerPage: 4,
       isMounted: false,
-      popupActive:false
+      popupActive:false,
+      newTitle:"",
+      newTeamActive:false,
+      newMembers:"",
+      teamToDelete:{}
     }
   },
   computed: {
@@ -120,15 +127,89 @@ export default {
     ]),
   },
   methods:{
+    ...mapActions('teams',[
+       'postTeam',
+       'getTeams',
+       'deleteTeam'
+     ]),
+
     editData(tr){
       this.selected = tr
       this.popupActive = true
+    },
+    createNewTeam(){
+      
+      let team = {
+        title:this.newTitle,
+        users:[],
+        archive:false,
+      }
+
+      this.postTeam(team)
+      .then(this.getTeams())
+      .then(this.addNewMembers())
+      .then(this.newTeamActive = false)
+
+    },
+    addNewMembers(){
+      let users = this.newMembers.split(',')
+      let errors = []
+      
+      for(let user of users){
+        // validate email address format
+
+        //send email
+
+        // append to error array 
+      }
+
+      if(errors.length > 0 ){
+        // show error 
+      }
+
+      this.newMembers = ""
+
+    },
+    deleteConfirm(team){
+      this.teamToDelete = team
+      this.$vs.dialog({
+        type:'confirm',
+        color: 'danger',
+        title: `Confirm`,
+        text: 'Are you sure you want to delete this team? All child projects will also be deleted!.',
+        accept:this.handleDelete
+      })
+    },
+
+    handleDelete(){
+      this.deleteTeam(this.teamToDelete)
+      .then(this.getTeams())
+      this.teamToDelete = {}
+
     }
+
   }
 }
 </script>
 
 <style lang="scss">
+.members-container{
+  width: 64px;
+}
+.revoke-header{
+  padding-top:15px;
+  padding-bottom:15px;
+}
+
+.new-team-button{
+  margin-left:15px;
+  margin-top:15px;
+}
+
+.avatarImg{
+   border-radius: 50%;
+}
+
 #data-list-thumb-view {
   .vs-con-table {
 
@@ -225,5 +306,6 @@ export default {
       justify-content: center;
     }
   }
+
 }
 </style>

@@ -120,6 +120,7 @@ export default{
       })
     }
   },
+
   async submitNewTask({state,commit,dispatch,rootState},task){
     await dispatch('auth/setToken',{root:true})
     // initalize request parameters and current state
@@ -133,7 +134,7 @@ export default{
       previousChildrenIds.push(el.key.id)
     })
     
-    // checks if current children below to project or task
+    // checks if current children below project or task
     let validCurrentTask = true
     if(typeof key == 'undefined'){
       key = state.currentProject.key
@@ -242,10 +243,6 @@ export default{
     .catch(err => {
       console.log(err)
     })
-  },
-
-  async deleteTasks({commit},obj){
-    console.log("deleted")
   },
 
   async restoreTasks({commit,state,dispatch,rootState},obj){

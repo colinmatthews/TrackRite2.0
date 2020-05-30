@@ -340,9 +340,11 @@ export default {
   methods:{
     ...mapActions('project',[
       'createProject',
-      'initializePublicProjectContents',
-      'initializePrivateProjectContents',
     ]),
+
+     ...mapActions('teams',[
+       'getTeamProjects'
+     ]),
 
     submitNewProject() {
       this.$validator.validateAll().then(result => {
@@ -366,10 +368,7 @@ export default {
         }
           
           this.createProject(data)
-          .then(async () => {
-            await this.initializePublicProjectContents()
-            await this.initializePrivateProjectContents()
-          })
+          .then(this.getTeamProjects())
           .then(this.$router.push('/projects'))
         } 
         else{

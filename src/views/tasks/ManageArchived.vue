@@ -6,11 +6,11 @@
 
 
       <vs-table
-      style="padding-top:15px;"
-      multiple
-      v-model="selected"
-      :data="archivedTasks"
-      pagination
+        style="padding-top:15px;"
+        multiple
+        v-model="selected"
+        :data="archivedTasks"
+        pagination
       >
       <template slot="header">
         

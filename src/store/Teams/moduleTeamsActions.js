@@ -38,11 +38,23 @@ export default{
     let token = rootState.auth.firebaseToken
     let url = process.env.VUE_APP_FUNCTIONS_URL + "/teams"
     await this.$http.post(url,team,{headers: {"Authorization" : "Bearer " + token}}).then(res => {
-      console.log("created")
+      console.log(res)
     })
     .catch(err => {
       console.log(err)
     })
+  },
+
+  async deleteTeam({commit,dispatch,state,rootState},team){
+    let token = rootState.auth.firebaseToken
+    let url = process.env.VUE_APP_FUNCTIONS_URL + "/teams"
+    await this.$http.delete(url, {headers: {"Authorization" : "Bearer " + token},data:{team:team}}).then(res => {
+      console.log(res)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+
   },
 
   async getArchivedTeams({commit,dispatch,state,rootState}){
